@@ -4,7 +4,7 @@
 
 Prototipo de app para móvil para gestionar los alumnos y los cobros de **Baekho Doyang**, escuela de artes marciales en Dos Hermanas (Sevilla): Hapkido Jin Jung Kwan, Taekwondo, Defensa personal para mujeres, Wing Fight y Kum Moo Yeh.
 
-> **Demo con datos ficticios.** Alumnos, familias, teléfonos y horario son inventados. Los datos se guardan solo en el navegador del móvil que la abre.
+> **Demo con datos ficticios.** El horario es el real de la escuela; alumnos, familias y teléfonos son inventados. Los datos se guardan solo en el navegador del móvil que la abre.
 
 ## Qué hace
 
@@ -25,7 +25,7 @@ Prototipo de app para móvil para gestionar los alumnos y los cobros de **Baekho
   - El NIF del titular en los recibos.
   - El número de Bizum en los mensajes de recordatorio. Hoy solo tenemos el teléfono de contacto, 635 576 114.
 - **Matrícula y licencia federativa:** las pagan las familias cuando corresponde, cada una con su recibo. La matrícula se cobra al dar de alta al alumno y la licencia, desde su ficha, cuando va a competir. En la demo los importes son de ejemplo (se cambian en Ajustes).
-- **El horario es de ejemplo.** Se sustituye por el real cuando la escuela lo apruebe.
+- **Horario:** es el del cartel de la escuela. Las clases de lunes y miércoles se repiten iguales, igual que las de martes y jueves.
 - **Versión real:**
   - Datos en un servidor de la Unión Europea, acceso con contraseña y copias de seguridad diarias.
   - Uso desde varios móviles a la vez.
@@ -50,6 +50,7 @@ Sin compilación; todo es HTML, CSS y JS:
 - `app/index.html`: la app, en un solo archivo.
 - `app/manifest.webmanifest` y `app/sw.js`: para instalarla como app y para que funcione sin conexión. Al cambiar la app, sube la versión de `CACHE` en `sw.js`.
 - `img/`: emblema, iconos y `capturas/` (pantallas de la app usadas en la presentación).
+- `analitica.js`: contador de visitas con [Umami](https://umami.is), sin cookies. Se activa al pegar el «Website ID» en el archivo. Para que no cuenten tus visitas, abre una vez la página con `?yo` al final.
 - El PDF se genera en el propio navegador con [jsPDF](https://github.com/parallax/jsPDF) 2.5.1, cargado desde cdnjs.
 
 Para probarla en local:

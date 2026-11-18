@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Baekho">
 <link rel="manifest" href="manifest.webmanifest">
+<script src="../analitica.js"></script>
 <link rel="icon" type="image/png" href="../img/favicon.png">
 <link rel="apple-touch-icon" href="../img/apple-touch-icon.png">
 <title>Baekho Doyang Gestión</title>
@@ -306,6 +307,7 @@ const CURSO_INICIO = (HOY_D.getMonth() >= 8 ? HOY_D.getFullYear() : HOY_D.getFul
 const DISC = {
   hapkido:  {nombre:"Hapkido Jin Jung Kwan", corto:"Hapkido", color:"#EF2B2F"},
   tkd:      {nombre:"Taekwondo", corto:"Taekwondo", color:"#4F7BE0"},
+  baekids:  {nombre:"Baekids", corto:"Baekids", color:"#F07A3A"},
   defensa:  {nombre:"Defensa personal para mujeres", corto:"Defensa personal", color:"#C46BD8"},
   wing:     {nombre:"Wing Fight", corto:"Wing Fight", color:"#E3C73E"},
   kum:      {nombre:"Kum Moo Yeh (espada y arco)", corto:"Kum Moo Yeh", color:"#4BC28A"},
@@ -316,33 +318,30 @@ const CINTURONES = [
 ];
 const beltColor = n => (CINTURONES.find(b => b.n === n) || {c:"transparent"}).c;
 
-/* Horario de ejemplo: se sustituye por el real cuando lo aprueben */
+/* Horario de la escuela (cartel del curso). Las parejas de días repiten las mismas clases. */
 const CLASES = [
-  {id:"t1-lx-17", tatami:1, dias:"LX", hora:"17:00", disc:"hapkido", grupo:"Infantil (6-9 años)", tipo:"nino"},
-  {id:"t1-lx-18", tatami:1, dias:"LX", hora:"18:00", disc:"hapkido", grupo:"Juvenil (10-15 años)", tipo:"nino"},
-  {id:"t1-lx-19", tatami:1, dias:"LX", hora:"19:00", disc:"hapkido", grupo:"Adultos", tipo:"adulto"},
-  {id:"t1-lx-20", tatami:1, dias:"LX", hora:"20:00", disc:"defensa", grupo:"Mujeres", tipo:"mujer"},
-  {id:"t1-mj-17", tatami:1, dias:"MJ", hora:"17:00", disc:"hapkido", grupo:"Infantil (6-9 años)", tipo:"nino"},
-  {id:"t1-mj-18", tatami:1, dias:"MJ", hora:"18:00", disc:"hapkido", grupo:"Juvenil (10-15 años)", tipo:"nino"},
-  {id:"t1-mj-19", tatami:1, dias:"MJ", hora:"19:00", disc:"kum", grupo:"Adultos", tipo:"adulto"},
-  {id:"t2-lx-17", tatami:2, dias:"LX", hora:"17:00", disc:"tkd", grupo:"Infantil (6-9 años)", tipo:"nino"},
-  {id:"t2-lx-18", tatami:2, dias:"LX", hora:"18:00", disc:"tkd", grupo:"Juvenil (10-15 años)", tipo:"nino"},
-  {id:"t2-lx-19", tatami:2, dias:"LX", hora:"19:00", disc:"wing", grupo:"Jóvenes y adultos", tipo:"adulto"},
-  {id:"t2-mj-17", tatami:2, dias:"MJ", hora:"17:00", disc:"tkd", grupo:"Infantil (6-9 años)", tipo:"nino"},
-  {id:"t2-mj-18", tatami:2, dias:"MJ", hora:"18:00", disc:"tkd", grupo:"Juvenil (10-15 años)", tipo:"nino"},
-  {id:"t2-mj-19", tatami:2, dias:"MJ", hora:"19:00", disc:"tkd", grupo:"Adultos", tipo:"adulto"},
-  {id:"t2-mj-20", tatami:2, dias:"MJ", hora:"20:00", disc:"wing", grupo:"Jóvenes y adultos", tipo:"adulto"},
+  {id:"t1-lx-1700", tatami:1, dias:"LX", hora:"17:00", fin:"18:00", disc:"baekids", grupo:"Infantil (5-9 años)", tipo:"nino", edad:[5,9]},
+  {id:"t1-lx-2030", tatami:1, dias:"LX", hora:"20:30", fin:"21:30", disc:"wing",    grupo:"Adultos (desde 14 años)", tipo:"adulto"},
+  {id:"t2-lx-1700", tatami:2, dias:"LX", hora:"17:00", fin:"18:00", disc:"hapkido", grupo:"Infantil (8-9 años)", tipo:"nino", edad:[8,9]},
+  {id:"t2-lx-1800", tatami:2, dias:"LX", hora:"18:00", fin:"19:00", disc:"hapkido", grupo:"Juvenil (10-13 años)", tipo:"nino", edad:[10,13]},
+  {id:"t2-lx-2030", tatami:2, dias:"LX", hora:"20:30", fin:"22:00", disc:"hapkido", grupo:"Adultos (desde 14 años)", tipo:"adulto"},
+  {id:"t1-mj-0930", tatami:1, dias:"MJ", hora:"09:30", fin:"11:00", disc:"hapkido", grupo:"Adultos (mañana)", tipo:"adulto"},
+  {id:"t1-mj-1700", tatami:1, dias:"MJ", hora:"17:00", fin:"18:00", disc:"hapkido", grupo:"Infantil (8-9 años)", tipo:"nino", edad:[8,9]},
+  {id:"t2-mj-1700", tatami:2, dias:"MJ", hora:"17:00", fin:"18:00", disc:"tkd",     grupo:"Infantil (5-9 años)", tipo:"nino", edad:[5,9]},
+  {id:"t2-mj-1800", tatami:2, dias:"MJ", hora:"18:00", fin:"19:00", disc:"hapkido", grupo:"Juvenil (10-13 años)", tipo:"nino", edad:[10,13]},
+  {id:"t2-mj-1900", tatami:2, dias:"MJ", hora:"19:00", fin:"20:30", disc:"hapkido", grupo:"Adultos (desde 14 años)", tipo:"adulto"},
 ];
-const HORAS = ["17:00","18:00","19:00","20:00"];
+const hh = h => h.replace(/^0/, "");
+const rango = c => `${hh(c.hora)} a ${hh(c.fin)}`;
 const claseById = id => CLASES.find(c => c.id === id);
 const diasTxt = d => d === "LX" ? "Lunes y miércoles" : "Martes y jueves";
 const claseTxt = c => `${DISC[c.disc].corto} · ${c.grupo}`;
-const claseHoraTxt = c => `${c.dias === "LX" ? "L y X" : "M y J"} ${c.hora} · Tatami ${c.tatami}`;
+const claseHoraTxt = c => `${c.dias === "LX" ? "L y X" : "M y J"} ${rango(c)} · Tatami ${c.tatami}`;
 const CAPACIDAD = 16;
 
 /* ===================== Datos ===================== */
 const AJUSTES_BASE = {cuota:40, matricula:30, licencia:45, diaLimite:5, academiaTel:"635576114", direccion:"Avenida de Adolfo Suárez, 50", localidad:"Dos Hermanas (Sevilla)"};
-const KEY = "bk-gestion-demo-v3";
+const KEY = "bk-gestion-demo-v4";
 let S;
 
 function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -363,7 +362,7 @@ function seed(){
     const y = year - 1 - Math.floor(r()*3); return `${y}-${pad(9+Math.floor(r()*3))}-${pad(1+Math.floor(r()*27))}`;
   };
   const belt = (c, edadNino) => {
-    if (c.disc === "hapkido" || c.disc === "tkd") { const max = edadNino ? 5 : 7; return CINTURONES[Math.min(Math.floor(r()*r()*max), 6)].n; }
+    if (c.disc === "hapkido" || c.disc === "tkd" || c.disc === "baekids") { const max = edadNino ? 5 : 7; return CINTURONES[Math.min(Math.floor(r()*r()*max), 6)].n; }
     return "";
   };
   const kidClases = CLASES.filter(c => c.tipo === "nino");
@@ -376,13 +375,13 @@ function seed(){
     const nHijos = r() < .22 ? 2 : 1;
     for (let h = 0; h < nHijos; h++) {
       const c = pick(kidClases); const chica = r() < .42;
-      const edadMin = c.grupo.startsWith("Infantil") ? 6 : 10, edadMax = c.grupo.startsWith("Infantil") ? 9 : 15;
+      const [edadMin, edadMax] = c.edad;
       alumnos.push({id:`A${++aid}`, nombre: chica ? pick(NOM_M) : pick(NOM_H), apellidos:`${ap1} ${ap2}`, nacimiento: year - (edadMin + Math.floor(r()*(edadMax-edadMin+1))), familiaId:f.id, claseId:c.id, cinturon:belt(c,true), alta:altaDate(r() < .1), consentimiento:true, activo:true});
     }
   }
   // Adultos (contacto = el propio alumno)
   for (let i = 0; i < 17; i++) {
-    const c = pick(adClases); const mujer = c.tipo === "mujer" || r() < .35;
+    const c = pick(adClases); const mujer = r() < .35;
     const nombre = mujer ? pick(NOM_M) : pick(NOM_H), apellidos = `${pick(AP)} ${pick(AP)}`;
     const f = {id:`F${++fid}`, contacto:`${nombre} ${apellidos.split(" ")[0]}`, telefono:tel()};
     familias.push(f);
@@ -528,7 +527,7 @@ function vInicio(){
 
   <section class="sec">
     <div class="sec-head"><h2>${hoyDias ? "Clases de hoy" : "Hoy no hay clase"}</h2><button class="link" data-action="ir-horario">Horario</button></div>
-    ${hoyDias ? `<div class="list">${clasesHoy.map(c => { const n = S.alumnos.filter(a => a.activo && a.claseId === c.id).length; return `<button class="row" data-action="clase" data-id="${c.id}"><span class="hour" style="padding:0;width:46px">${c.hora}</span><span class="main"><span class="t"><span class="disc-dot" style="background:${DISC[c.disc].color}"></span>${esc(claseTxt(c))}</span><span class="s">Tatami ${c.tatami} · ${n} alumnos</span></span>${I.chev}</button>`; }).join("")}</div>` : `<div class="list"><div class="empty">Las clases son de lunes a jueves.</div></div>`}
+    ${hoyDias ? `<div class="list">${clasesHoy.map(c => { const n = S.alumnos.filter(a => a.activo && a.claseId === c.id).length; return `<button class="row" data-action="clase" data-id="${c.id}"><span class="hour" style="padding:0;width:46px">${hh(c.hora)}</span><span class="main"><span class="t"><span class="disc-dot" style="background:${DISC[c.disc].color}"></span>${esc(claseTxt(c))}</span><span class="s">${rango(c)} · Tatami ${c.tatami} · ${n} alumnos</span></span>${I.chev}</button>`; }).join("")}</div>` : `<div class="list"><div class="empty">Las clases son de lunes a jueves.</div></div>`}
   </section>
 
   <section class="sec">
@@ -598,7 +597,7 @@ function vAlumnos(){
   <label class="search">${I.search}<input id="q" type="search" placeholder="Buscar alumno o familia" value="${esc(UI.q)}" autocomplete="off"></label>
   <div class="chips" role="group" aria-label="Disciplina">
     <button class="chip" aria-pressed="${UI.disc === "todas"}" data-action="disc" data-d="todas">Todas<span class="c">${activos.length}</span></button>
-    ${Object.entries(DISC).map(([k,d]) => `<button class="chip" aria-pressed="${UI.disc === k}" data-action="disc" data-d="${k}"><span class="disc-dot" style="background:${d.color}"></span>${d.corto}<span class="c">${cuenta(k)}</span></button>`).join("")}
+    ${Object.entries(DISC).filter(([k]) => CLASES.some(c => c.disc === k)).map(([k,d]) => `<button class="chip" aria-pressed="${UI.disc === k}" data-action="disc" data-d="${k}"><span class="disc-dot" style="background:${d.color}"></span>${d.corto}<span class="c">${cuenta(k)}</span></button>`).join("")}
   </div>
   <div class="list" id="lista-alumnos">${lista.length ? lista.map(a => { const c = claseById(a.claseId); const deb = mesesDebidos(a);
     return `<button class="row" data-action="alumno" data-id="${a.id}">${avatar(a)}<span class="main"><span class="t">${esc(nombreCompleto(a))}</span><span class="s">${esc(claseTxt(c))} · ${claseHoraTxt(c).split(" · ")[0]}</span></span><span class="end">${deb.length ? `<span class="pill ${deb.some(m => estado(a,m).k === "late") ? "p-late" : "p-pend"}">Debe ${deb.length}</span>` : ""}${I.chev}</span></button>`; }).join("") : `<div class="empty">No hay alumnos con ese nombre.</div>`}</div>`;
@@ -607,22 +606,23 @@ function vAlumnos(){
 /* ---------- Horario ---------- */
 function vHorario(){
   const d = UI.dias;
+  const horas = [...new Set(CLASES.filter(c => c.dias === d).map(c => c.hora))].sort();
   const celda = (t, h) => { const c = CLASES.find(c => c.tatami === t && c.dias === d && c.hora === h);
     if (!c) return `<div class="cls free"><span>Libre</span></div>`;
     const n = S.alumnos.filter(a => a.activo && a.claseId === c.id).length;
-    return `<button class="cls" data-action="clase" data-id="${c.id}" style="border-left:4px solid ${DISC[c.disc].color}"><b>${DISC[c.disc].corto}</b><span>${esc(c.grupo)}</span><span class="occ"><i><em style="width:${Math.min(100,n/CAPACIDAD*100)}%"></em></i>${n}</span></button>`; };
+    return `<button class="cls" data-action="clase" data-id="${c.id}" style="border-left:4px solid ${DISC[c.disc].color}"><b>${DISC[c.disc].corto}</b><span>${esc(c.grupo)}</span><span class="num">${rango(c)}</span><span class="occ"><i><em style="width:${Math.min(100,n/CAPACIDAD*100)}%"></em></i>${n}</span></button>`; };
   return `
   <div><h1>Horario</h1></div>
-  <p class="demo-flag">Horario de ejemplo. Lo cambiamos por el real cuando la escuela lo apruebe.</p>
+  <p class="demo-flag">Horario real de la escuela. Los alumnos apuntados son inventados.</p>
   <div class="seg" role="group" aria-label="Días">
     <button aria-pressed="${d === "LX"}" data-action="dias" data-d="LX">Lunes y miércoles</button>
     <button aria-pressed="${d === "MJ"}" data-action="dias" data-d="MJ">Martes y jueves</button>
   </div>
   <div class="mats">
     <span></span><div class="mat-h t1">Tatami 1</div><div class="mat-h t2">Tatami 2</div>
-    ${HORAS.map(h => `<div class="hour">${h}</div>${celda(1,h)}${celda(2,h)}`).join("")}
+    ${horas.map(h => `<div class="hour">${hh(h)}</div>${celda(1,h)}${celda(2,h)}`).join("")}
   </div>
-  <p class="note">Cada clase dura una hora. La barra indica cuántos alumnos hay apuntados sobre ${CAPACIDAD} plazas (capacidad de ejemplo).</p>`;
+  <p class="note">La barra indica cuántos alumnos hay apuntados sobre ${CAPACIDAD} plazas (capacidad de ejemplo).</p>`;
 }
 
 /* ---------- Render ---------- */
@@ -638,7 +638,7 @@ function render(){
   const b = document.getElementById("badge-cobros"); b.hidden = !late; b.textContent = late;
   try { sessionStorage.setItem("bk-tab", UI.tab); } catch(e){}
 }
-function go(tab){ UI.tab = tab; render(); window.scrollTo(0,0); }
+function go(tab){ if (tab !== UI.tab) window.track && window.track("demo: pestaña " + tab); UI.tab = tab; render(); window.scrollTo(0,0); }
 
 /* ===================== Hojas ===================== */
 function openSheet(html){
@@ -690,6 +690,7 @@ function confirmarCobro(){
   if (!p.lineas.length) return false;
   const r = {...p, no: nextNo(S, p.fecha)};
   S.recibos.push(r); save(); render();
+  window.track && window.track("demo: cobro", {metodo:r.metodo, lineas:r.lineas.length});
   sheetRecibo(r.no, true);
   toast(`Cobrado ${eur(r.lineas.reduce((s,l) => s + l.importe, 0))} · recibo ${r.no}`);
   return true;
@@ -807,7 +808,7 @@ function sheetAlumno(id){
     ${licenciaPagada(a) ? "" : `<button class="btn block" style="min-height:46px;font-size:15px" data-action="cobrar-extra" data-id="${a.id}" data-c="licencia">Cobrar licencia federativa · ${eur(S.ajustes.licencia)}</button>`}
     <dl class="kv">
       <dt>Clase</dt><dd>${esc(claseTxt(c))}</dd>
-      <dt>Horario</dt><dd>${diasTxt(c.dias)}, ${c.hora} · Tatami ${c.tatami}</dd>
+      <dt>Horario</dt><dd>${diasTxt(c.dias)}, ${rango(c)} · Tatami ${c.tatami}</dd>
       <dt>Cinturón</dt><dd><select id="cint-${a.id}" data-action="cinturon" data-id="${a.id}" style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:4px 8px"><option value="">Sin grado</option>${CINTURONES.map(b => `<option ${b.n === a.cinturon ? "selected" : ""}>${b.n}</option>`).join("")}</select></dd>
       <dt>${esAdulto ? "Teléfono" : "Contacto"}</dt><dd>${esAdulto ? "" : esc(f.contacto) + " · "}<span class="num">${telFmt(f.telefono)}</span></dd>
       ${hermanos.length ? `<dt>Hermanos</dt><dd>${hermanos.map(h => `<button class="link" data-action="alumno" data-id="${h.id}">${esc(h.nombre)}</button>`).join(", ")}</dd>` : ""}
@@ -829,7 +830,7 @@ function sheetClase(id){
   reIndex();
   const c = claseById(id);
   const al = S.alumnos.filter(a => a.activo && a.claseId === id).sort((a,b) => a.nombre.localeCompare(b.nombre));
-  openSheet(`${head(esc(DISC[c.disc].nombre), `${esc(c.grupo)} · ${diasTxt(c.dias)}, ${c.hora} · Tatami ${c.tatami}`)}
+  openSheet(`${head(esc(DISC[c.disc].nombre), `${esc(c.grupo)} · ${diasTxt(c.dias)}, ${rango(c)} · Tatami ${c.tatami}`)}
     <div class="legend"><span>${al.length} alumnos</span><span>${al.filter(a => mesesDebidos(a).length).length} con pagos pendientes</span></div>
     <div class="list">${al.length ? al.map(a => `<button class="row" data-action="alumno" data-id="${a.id}">${avatar(a)}<span class="main"><span class="t">${esc(nombreCompleto(a))}</span><span class="s">${a.cinturon ? "Cinturón " + a.cinturon.toLowerCase() : "Sin grado"}</span></span><span class="end">${pill(estado(a, MES_ACTUAL))}</span></button>`).join("") : `<div class="empty">Nadie apuntado todavía.</div>`}</div>`);
 }
@@ -867,7 +868,7 @@ function sheetNuevo(){
     if (!document.getElementById("n-rgpd").checked) return err("Falta el consentimiento firmado de la familia.");
     const a = {id:`A${Date.now()}`, nombre:v("n-nombre"), apellidos:v("n-ap"), nacimiento:nac, familiaId:fid, claseId:v("n-clase"), cinturon:v("n-cint"), alta:v("n-alta") || HOY, consentimiento:true, activo:true};
     a.matricula = false;
-    S.alumnos.push(a); save(); render(); sheetCobrar(fid); toast(`${a.nombre} dado de alta. Cobra ahora la matrícula`);
+    S.alumnos.push(a); save(); render(); window.track && window.track("demo: alta de alumno"); sheetCobrar(fid); toast(`${a.nombre} dado de alta. Cobra ahora la matrícula`);
   });
 }
 
@@ -882,7 +883,7 @@ function sheetAjustes(){
     <button class="btn gold" data-action="aj-guardar">Guardar</button>
     <section class="sec"><div class="sec-head"><h2>Sobre esta demo</h2><a class="link" href="../" style="text-decoration:none">Ver la presentación</a></div>
       <ul class="note" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px">
-        <li>Todos los alumnos, familias, teléfonos y el horario son inventados. Los datos se guardan solo en este móvil.</li>
+        <li>El horario es el real de la escuela. Los alumnos, las familias y los teléfonos son inventados. Los datos se guardan solo en este móvil.</li>
         <li>Mensualidad de 40 € por alumno, dos días a la semana. Los hermanos no tienen descuento.</li>
         <li>Se añadirá al aceptar el presupuesto: el NIF del titular en el recibo y el número de Bizum en los recordatorios.</li>
         <li>Matrícula y licencia federativa: se cobran con su propio recibo. La matrícula, al dar de alta al alumno; la licencia, desde su ficha cuando vaya a competir. Los importes son de ejemplo.</li>
@@ -915,10 +916,10 @@ document.addEventListener("click", e => {
     case "nuevo": return sheetNuevo();
     case "ajustes": return sheetAjustes();
     case "cerrar": return closeSheet();
-    case "ojo": UI_VER.ver = !UI_VER.ver; return render();
-    case "pdf-wa": enviarPDF(d.no); return;
-    case "pdf-dl": { const r = S.recibos.find(r => r.no === d.no); if (!window.jspdf) { toast("No se ha podido cargar el generador de PDF"); return; } guardarArchivo(pdfRecibo(r), pdfNombre(r)); return; }
-    case "recordar": toast("Recordatorio preparado en WhatsApp"); return;
+    case "ojo": UI_VER.ver = !UI_VER.ver; if (UI_VER.ver) window.track && window.track("demo: mostrar importes"); return render();
+    case "pdf-wa": window.track && window.track("demo: enviar PDF por WhatsApp"); enviarPDF(d.no); return;
+    case "pdf-dl": { window.track && window.track("demo: descargar PDF"); const r = S.recibos.find(r => r.no === d.no); if (!window.jspdf) { toast("No se ha podido cargar el generador de PDF"); return; } guardarArchivo(pdfRecibo(r), pdfNombre(r)); return; }
+    case "recordar": window.track && window.track("demo: recordatorio"); toast("Recordatorio preparado en WhatsApp"); return;
     case "metodo": COBRO.metodo = d.m; return drawCobrar();
     case "confirmar": confirmarCobro(); return;
     case "baja": return sheetBaja(d.id);

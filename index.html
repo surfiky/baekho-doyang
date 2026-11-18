@@ -16,6 +16,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="https://surfiky.github.io/baekho-doyang/">
 <meta name="twitter:card" content="summary_large_image">
+<script src="analitica.js"></script>
 <link rel="icon" type="image/png" href="img/favicon.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -205,7 +206,7 @@ footer{padding-block:48px calc(48px + env(safe-area-inset-bottom,0px));border-to
 <header class="wrap top">
   <img src="img/logo-256.webp" alt="Emblema de Baekho Doyang">
   <div><b>BAEKHO DOYANG</b><small>Escuela de artes marciales</small></div>
-  <nav><a class="demo-link" href="#propuesta">Precio</a><a class="demo-link" href="app/">Abrir la demo →</a></nav>
+  <nav><a class="demo-link" href="#propuesta" data-umami-event="ir al precio (cabecera)">Precio</a><a class="demo-link" href="app/" data-umami-event="abrir demo (cabecera)">Abrir la demo →</a></nav>
 </header>
 
 <section class="hero">
@@ -215,10 +216,10 @@ footer{padding-block:48px calc(48px + env(safe-area-inset-bottom,0px));border-to
       <h1 style="margin-top:14px">Cobrar sin parar la clase. <em>Recibos que no se pierden.</em></h1>
       <p class="lead">Una app en el móvil del profesor para llevar los alumnos, los cobros y los recibos de Baekho Doyang. Cada pago queda guardado con su número y el recibo llega en PDF al WhatsApp de la familia.</p>
       <div class="hero-cta">
-        <a class="btn gold" href="app/">Probar la demo</a>
-        <a class="btn" href="#cobro">Ver cómo funciona</a>
+        <a class="btn gold" href="app/" data-umami-event="abrir demo (portada)">Probar la demo</a>
+        <a class="btn" href="#cobro" data-umami-event="ver cómo funciona">Ver cómo funciona</a>
       </div>
-      <p class="hero-note">Demo con alumnos y datos inventados. Se puede tocar todo sin miedo. <a href="#propuesta" style="color:var(--gold);font-weight:600">Ver el precio →</a></p>
+      <p class="hero-note">Demo con el horario real de la escuela y alumnos inventados. Se puede tocar todo sin miedo. <a href="#propuesta" style="color:var(--gold);font-weight:600" data-umami-event="ir al precio (portada)">Ver el precio →</a></p>
     </div>
     <div class="ring"><div class="phone"><img src="img/capturas/inicio.webp" alt="Pantalla de inicio de la app: cobros del mes con los importes ocultos, alumnos pagados, atrasados y familias por recordar" width="600" height="1300"></div></div>
   </div>
@@ -325,7 +326,7 @@ footer{padding-block:48px calc(48px + env(safe-area-inset-bottom,0px));border-to
           <li>Haz un cobro de prueba y envíate el recibo a tu propio WhatsApp.</li>
           <li>Para empezar de cero: Ajustes (la rueda) → <b>Reiniciar demo</b>.</li>
         </ol>
-        <div class="hero-cta"><a class="btn gold" href="app/">Abrir la demo</a></div>
+        <div class="hero-cta"><a class="btn gold" href="app/" data-umami-event="abrir demo (pruébala)">Abrir la demo</a></div>
       </div>
       <div class="qr" id="qr" aria-label="Código QR para abrir la demo en el móvil"><span>Escanea con el móvil</span></div>
     </div>
@@ -394,7 +395,7 @@ footer{padding-block:48px calc(48px + env(safe-area-inset-bottom,0px));border-to
         <h2 class="h2">Lo que conviene saber de la demo</h2>
       </div>
       <dl class="notes">
-        <div><dt>Datos</dt><dd>Alumnos, familias, teléfonos y horario son inventados. Lo que se toca en la demo se guarda solo en ese móvil.</dd></div>
+        <div><dt>Datos</dt><dd>El horario es el real de la escuela. Alumnos, familias y teléfonos son inventados. Lo que se toca en la demo se guarda solo en ese móvil.</dd></div>
         <div><dt>Mensualidad</dt><dd>40 € por alumno, dos días a la semana (lunes y miércoles o martes y jueves). Los hermanos no tienen descuento.</dd></div>
         <div><dt>Recibo</dt><dd><span class="chip pend">Al aceptar</span>Se añadirá el NIF del titular.</dd></div>
         <div><dt>Bizum</dt><dd><span class="chip pend">Al aceptar</span>Se pondrá el número de Bizum en los recordatorios para que las familias puedan pagar desde casa.</dd></div>
@@ -409,7 +410,7 @@ footer{padding-block:48px calc(48px + env(safe-area-inset-bottom,0px));border-to
       </div>
       <ol class="road">
         <li><b>Revisar la demo</b><span>Probarla con calma y apuntar qué sobra, qué falta o qué cambiaríais.</span></li>
-        <li><b>Horario y tarifas reales</b><span>Se cargan el horario aprobado de los dos tatamis, la matrícula y los datos del recibo.</span></li>
+        <li><b>Tarifas y datos del recibo</b><span>Importes de la matrícula y de la licencia, NIF del titular y número de Bizum. El horario de los dos tatamis ya está cargado.</span></li>
         <li><b>Versión real</b><span>Datos guardados en servidores de la Unión Europea, acceso con contraseña, copias de seguridad diarias y uso desde varios móviles a la vez.</span></li>
         <li><b>Alta de alumnos</b><span>Se carga la lista real con el consentimiento firmado de cada familia, sin datos de salud de los menores, como pide la ley de protección de datos.</span></li>
         <li><b>Página web de la escuela</b><span>Opcional: disciplinas, horario, tarifas y contacto, con botón directo a WhatsApp y clase de prueba.</span></li>
@@ -421,12 +422,19 @@ footer{padding-block:48px calc(48px + env(safe-area-inset-bottom,0px));border-to
 <footer>
   <div class="wrap foot">
     <div class="id"><img src="img/logo-256.webp" alt=""><div><b>BAEKHO DOYANG</b><br>Avenida de Adolfo Suárez, 50 · Dos Hermanas (Sevilla)<br>Tel. 635 576 114</div></div>
-    <p>Hapkido Jin Jung Kwan · Taekwondo · Defensa personal para mujeres · Wing Fight · Kum Moo Yeh</p>
+    <p>Hapkido Jin Jung Kwan · Taekwondo · Defensa personal para mujeres · Wing Fight · Kum Moo Yeh<br><small style="opacity:.7">Esta página cuenta las visitas de forma anónima, sin cookies.</small></p>
   </div>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
+(() => {
+  if ("IntersectionObserver" in window) {
+    const vistas = {cobro:"vio: cómo se cobra", funciones:"vio: funciones", propuesta:"vio: precio", aclaraciones:"vio: aclaraciones"};
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { window.track && window.track(vistas[e.target.id]); io.unobserve(e.target); } }), {threshold:.35});
+    Object.keys(vistas).forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
+  }
+})();
 (() => {
   const box = document.getElementById("qr");
   try {
