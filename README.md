@@ -1,5 +1,7 @@
 # Baekho Doyang · App de gestión
 
+**Presentación y demo:** https://surfiky.github.io/baekho-doyang/ (la demo está en [`/app/`](https://surfiky.github.io/baekho-doyang/app/)).
+
 Prototipo de app para móvil para gestionar los alumnos y los cobros de **Baekho Doyang**, escuela de artes marciales en Dos Hermanas (Sevilla): Hapkido Jin Jung Kwan, Taekwondo, Defensa personal para mujeres, Wing Fight y Kum Moo Yeh.
 
 > **Demo con datos ficticios.** Alumnos, familias, teléfonos y horario son inventados. Los datos se guardan solo en el navegador del móvil que la abre.
@@ -43,9 +45,11 @@ Abre la web en el móvil:
 
 ## Desarrollo
 
-Es un solo archivo, sin compilación: `index.html` (HTML, CSS y JS). Además:
-- `manifest.webmanifest` y `sw.js`: para instalarla como app y para que funcione sin conexión. Al cambiar la app, sube la versión de `CACHE` en `sw.js`.
-- `img/`: emblema e iconos.
+Sin compilación; todo es HTML, CSS y JS:
+- `index.html`: página de presentación para la escuela (problema, cómo se cobra, funciones, aclaraciones y siguientes pasos). Con imagen de vista previa (`img/og.jpg`) para cuando se comparte el enlace por WhatsApp.
+- `app/index.html`: la app, en un solo archivo.
+- `app/manifest.webmanifest` y `app/sw.js`: para instalarla como app y para que funcione sin conexión. Al cambiar la app, sube la versión de `CACHE` en `sw.js`.
+- `img/`: emblema, iconos y `capturas/` (pantallas de la app usadas en la presentación).
 - El PDF se genera en el propio navegador con [jsPDF](https://github.com/parallax/jsPDF) 2.5.1, cargado desde cdnjs.
 
 Para probarla en local:
@@ -54,6 +58,6 @@ Para probarla en local:
 python3 -m http.server 8766
 ```
 
-Y abre http://localhost:8766.
+Y abre http://localhost:8766 (presentación) o http://localhost:8766/app/ (demo).
 
 Para reiniciar los datos de ejemplo: Ajustes (la rueda) → «Reiniciar demo».

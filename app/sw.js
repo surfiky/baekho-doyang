@@ -1,7 +1,7 @@
 // Service worker mínimo: guarda la app para que abra rápido y funcione sin conexión.
 // Al cambiar cualquier archivo de la app, sube la versión para que los móviles descarguen la nueva.
-const CACHE = "baekho-v1";
-const APP = ["./", "index.html", "manifest.webmanifest", "img/logo-256.webp", "img/icon-192.png", "img/icon-512.png", "img/apple-touch-icon.png", "img/favicon.png"];
+const CACHE = "baekho-v3";
+const APP = ["./", "index.html", "manifest.webmanifest", "../img/logo-256.webp", "../img/icon-192.png", "../img/icon-512.png", "../img/apple-touch-icon.png", "../img/favicon.png"];
 const JSPDF = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
 
 self.addEventListener("install", e => {

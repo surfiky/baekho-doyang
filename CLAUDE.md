@@ -3,9 +3,10 @@
 PWA para móvil para gestionar los alumnos y los cobros de Baekho Doyang, escuela de artes marciales (Avenida de Adolfo Suárez, 50, Dos Hermanas, Sevilla · Tel. 635 576 114). La desarrolla el usuario; es una demo para presentar a la escuela, pendiente de que acepten el presupuesto.
 
 ## Estado actual
-- `index.html`: prototipo en un solo archivo (HTML + CSS + JS, sin compilación). Datos ficticios generados con semilla fija y guardados en `localStorage` (clave `bk-gestion-demo-v2`).
+- `index.html`: página de presentación para el cliente, con capturas de `img/capturas/` y vista previa `img/og.jpg` para WhatsApp. Si cambia la app, regenera las capturas (Playwright, 390x844, escala 2, pasadas a WebP de 600 px de ancho).
+- `app/index.html`: la app, prototipo en un solo archivo (HTML + CSS + JS, sin compilación). Datos ficticios generados con semilla fija y guardados en `localStorage` (clave `bk-gestion-demo-v2`).
 - PDF del recibo con jsPDF 2.5.1 (cdnjs). Se envía con `navigator.share` (archivos) y, si no se puede, se descarga.
-- `manifest.webmanifest` + `sw.js` para instalarla como app. Sube `CACHE` en `sw.js` al cambiar archivos.
+- `app/manifest.webmanifest` + `app/sw.js` para instalarla como app. Sube `CACHE` en `sw.js` al cambiar archivos.
 - Publicada con GitHub Pages desde `main` (raíz). También hay una copia como artifact: https://claude.ai/artifact/BYQoJ5xGWEyPfetQQ2QA9n
 - `.claude/launch.json`: servidor local en el puerto 8766.
 
