@@ -50,7 +50,7 @@ Sin compilación; todo es HTML, CSS y JS:
 - `app/index.html`: la app, en un solo archivo.
 - `app/manifest.webmanifest` y `app/sw.js`: para instalarla como app y para que funcione sin conexión. Al cambiar la app, sube la versión de `CACHE` en `sw.js`.
 - `img/`: emblema, iconos y `capturas/` (pantallas de la app usadas en la presentación).
-- `analitica.js`: contador de visitas con [Umami](https://umami.is), sin cookies. Se activa al pegar el «Website ID» en el archivo. Para que no cuenten tus visitas, abre una vez la página con `?yo` al final.
+- `analitica.js`: contador de visitas con [Umami](https://umami.is), sin cookies. El «Website ID» está en el propio archivo. Para que no cuenten tus visitas, abre una vez la página con `?yo` al final.
 - El PDF se genera en el propio navegador con [jsPDF](https://github.com/parallax/jsPDF) 2.5.1, cargado desde cdnjs.
 
 Para probarla en local:

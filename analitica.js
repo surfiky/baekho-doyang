@@ -3,7 +3,7 @@
    2. Para que no cuenten tus propias visitas, abre una vez la página con ?yo al final
       (por ejemplo https://surfiky.github.io/baekho-doyang/?yo) en cada navegador que uses. */
 (function () {
-  var WEBSITE_ID = "";
+  var WEBSITE_ID = "7c153bd5-54fe-4c60-b0e1-ec946e715850";
   try { if (/[?&]yo\b/.test(location.search)) localStorage.setItem("umami.disabled", "1"); } catch (e) {}
   window.track = function (nombre, datos) { try { if (window.umami) window.umami.track(nombre, datos); } catch (e) {} };
   if (!WEBSITE_ID) return;
