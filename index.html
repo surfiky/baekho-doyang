@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0B">
+<meta name="description" content="Gestión de alumnos, cobros y recibos de Baekho Doyang, escuela de artes marciales en Dos Hermanas (Sevilla).">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Baekho">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<title>Baekho Doyang Gestión</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: app de móvil a una columna, cabecera fija con el emblema, barra de pestañas abajo, hojas que suben desde abajo.
+   Estilo deliberadamente oscuro: negro del parche, aro dorado, rojo y azul del taegeuk. */
+:root{
+  --black:#0A0A0B;
+  --surface:#151517;
+  --surface-2:#1D1D21;
+  --line:#2C2C31;
+  --fg:#F4F1E6;
+  --muted:#A29E93;
+  --gold:#E3C73E;
+  --gold-ink:#1A1605;
+  --red:#EF2B2F;
+  --blue:#2F5BC4;
+  --blue-soft:#7FA0F0;
+  --ok:#4BC28A;
+  --display:"Black Han Sans","Arial Black",Impact,sans-serif;
+  --text:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --cond:"Barlow Condensed","Barlow",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px)}
+img{max-width:100%}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--black);color:var(--fg);font-family:var(--text);font-size:16px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--black)}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+
+/* Cabecera */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(10,10,11,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top-in{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top-in img{width:40px;height:40px;flex:none}
+.brand{flex:1;min-width:0}
+.brand b{display:block;font-family:var(--display);font-weight:400;font-size:20px;letter-spacing:.04em;color:var(--gold);line-height:1.05}
+.brand small{display:block;font-family:var(--cond);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer}
+.icon-btn svg{width:20px;height:20px}
+.icon-btn[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+.oculto{letter-spacing:.12em;color:var(--muted)}
+.r-addr{font-size:11px;color:#5E584A;line-height:1.35}
+.send-note{font-size:13px;line-height:1.45;color:var(--fg);background:rgba(127,160,240,.10);border:1px solid rgba(127,160,240,.35);border-radius:12px;padding:10px 12px}
+
+main{max-width:720px;margin:0 auto;padding-block:16px 120px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+.demo-flag{font-family:var(--cond);font-size:13px;letter-spacing:.06em;color:var(--gold);border:1px dashed rgba(227,199,62,.5);border-radius:10px;padding:8px 12px;background:rgba(227,199,62,.06)}
+
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font-family:var(--display);font-weight:400;font-size:28px;letter-spacing:.02em;line-height:1.1}
+h2{font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.link{background:none;border:0;color:var(--gold);font-weight:600;cursor:pointer;padding:4px 0}
+
+/* Tarjeta de estado del mes: el aro dorado del parche */
+.month-card{position:relative;border-radius:20px;padding:20px;background:
+  radial-gradient(120% 90% at 100% 0%,rgba(239,43,47,.20),transparent 55%),
+  radial-gradient(120% 90% at 0% 100%,rgba(47,91,196,.24),transparent 55%),var(--surface);
+  border:2px solid var(--gold);display:flex;flex-direction:column;gap:14px;overflow:hidden}
+.month-card .eyebrow{font-family:var(--cond);font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.big{font-family:var(--display);font-size:44px;line-height:1;letter-spacing:.01em}
+.big small{font-family:var(--text);font-size:15px;color:var(--muted);font-weight:500;margin-left:6px;letter-spacing:0}
+.bar{height:10px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .b-ef{background:var(--gold)}
+.bar .b-bz{background:var(--blue-soft)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:rgba(0,0,0,.35);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-size:20px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted);letter-spacing:.04em}
+.stat.warn b{color:var(--red)}
+.stat.okk b{color:var(--ok)}
+
+/* Listas */
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;width:100%;text-align:left;cursor:pointer;min-height:60px}
+.row:first-child{border-top:0}
+.row:active{background:var(--surface-2)}
+.row .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.row .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .s{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .end{display:flex;align-items:center;gap:8px;flex:none}
+.empty{padding:22px 16px;color:var(--muted);text-align:center}
+
+.avatar{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--cond);font-weight:700;font-size:15px;color:var(--black);position:relative}
+.avatar .belt{position:absolute;left:3px;right:3px;bottom:-3px;height:5px;border-radius:2px;box-shadow:0 0 0 2px var(--surface)}
+
+.pill{display:inline-flex;align-items:center;gap:5px;font-family:var(--cond);font-weight:600;font-size:13px;letter-spacing:.04em;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.p-ok{color:var(--ok);background:rgba(75,194,138,.12)}
+.p-pend{color:var(--gold);background:rgba(227,199,62,.12)}
+.p-late{color:#FF6B6E;background:rgba(239,43,47,.15)}
+.p-none{color:var(--muted);background:rgba(255,255,255,.06)}
+.tag{font-family:var(--cond);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:var(--surface-2);color:var(--muted)}
+.tag.bz{color:var(--blue-soft)}
+.tag.ef{color:var(--gold)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn.sm{min-height:34px;padding:0 12px;font-size:14px;border-radius:10px}
+.btn.gold{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.btn.wa{background:#1FA855;border-color:#1FA855;color:#fff}
+.btn.red{background:transparent;color:#FF6B6E;border-color:rgba(239,43,47,.5)}
+.btn.block{width:100%;min-height:52px;font-size:17px}
+.btn svg{width:18px;height:18px;flex:none}
+.btn[aria-disabled="true"]{opacity:.4;pointer-events:none}
+
+/* Chips y búsqueda */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 14px;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--black);border-color:var(--fg)}
+.chip .c{opacity:.6;margin-left:4px;font-variant-numeric:tabular-nums}
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 12px}
+.search svg{width:18px;height:18px;color:var(--muted);flex:none}
+.search input{flex:1;min-width:0;border:0;background:none;height:44px;outline:none}
+
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+.seg button{border:0;background:none;border-radius:9px;min-height:38px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface-2);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
+
+/* Horario: dos tatamis */
+.mats{display:grid;grid-template-columns:52px 1fr 1fr;gap:8px;align-items:stretch}
+.mat-h{font-family:var(--cond);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:13px;padding:8px 10px;border-radius:10px;text-align:center}
+.mat-h.t1{background:rgba(239,43,47,.16);color:#FF8587}
+.mat-h.t2{background:rgba(47,91,196,.22);color:var(--blue-soft)}
+.hour{font-family:var(--cond);font-weight:600;color:var(--muted);font-size:15px;padding-top:10px;font-variant-numeric:tabular-nums}
+.cls{border-radius:12px;padding:10px;border:1px solid var(--line);background:var(--surface);text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-width:0;min-height:76px}
+.cls b{font-size:15px;line-height:1.15}
+.cls span{font-size:12px;color:var(--muted)}
+.cls .occ{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-top:auto}
+.cls .occ i{flex:1;height:4px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden}
+.cls .occ i em{display:block;height:100%;background:var(--gold)}
+.cls.free{background:none;border-style:dashed;color:var(--muted);cursor:default}
+.disc-dot{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:1px}
+
+/* Barra inferior */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(14,14,16,.97);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.tabs-in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 10px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;position:relative}
+.tab svg{width:24px;height:24px}
+.tab[aria-current="page"]{color:var(--gold)}
+.tab[aria-current="page"]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--gold)}
+.tab .badge{position:absolute;top:5px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;line-height:18px;font-variant-numeric:tabular-nums}
+
+/* Hojas */
+.scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:640px;max-height:92%;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:22px 22px 0 0;padding-block:8px calc(24px + env(safe-area-inset-bottom,0px));padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.grab{width:42px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 4px}
+.sheet-h{display:flex;align-items:flex-start;gap:12px}
+.sheet-h .main{flex:1;min-width:0}
+.sheet-h h3{font-family:var(--display);font-weight:400;font-size:24px;line-height:1.1}
+.sheet-h p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.close{width:36px;height:36px;border-radius:50%;border:0;background:var(--surface-2);cursor:pointer;display:grid;place-items:center;flex:none}
+.close svg{width:18px;height:18px}
+
+.lines{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.line{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--line);cursor:pointer}
+.line:first-child{border-top:0}
+.line input{width:22px;height:22px;accent-color:var(--gold);flex:none}
+.line .main{flex:1;min-width:0}
+.line .main b{display:block;font-weight:600}
+.line .main span{font-size:13px;color:var(--muted)}
+.line .amt{font-weight:700;font-variant-numeric:tabular-nums}
+.methods{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.method{border:1px solid var(--line);background:var(--surface-2);border-radius:14px;padding:12px;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left}
+.method b{font-size:16px}
+.method span{font-size:12px;color:var(--muted)}
+.method[aria-pressed="true"]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold);background:rgba(227,199,62,.08)}
+.total{display:flex;justify-content:space-between;align-items:baseline;font-size:15px;color:var(--muted)}
+.total b{font-family:var(--display);font-weight:400;font-size:32px;color:var(--fg)}
+
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:15px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;text-align:right;min-width:0;overflow-wrap:anywhere}
+.months{display:flex;flex-wrap:wrap;gap:6px}
+.mbox{display:flex;flex-direction:column;align-items:center;gap:2px;width:58px;padding:8px 0;border-radius:10px;font-family:var(--cond);font-weight:600;font-size:14px;text-transform:capitalize}
+.mbox small{font-size:11px;letter-spacing:.04em;font-weight:500}
+
+/* Recibo: el papel del talonario, pero ordenado */
+.receipt{background:#FBF8EE;color:#16130A;border-radius:14px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+.receipt::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;background:linear-gradient(90deg,var(--red) 50%,var(--blue) 50%)}
+.r-head{display:flex;gap:12px;align-items:center}
+.r-head img{width:52px;height:52px}
+.r-head b{font-family:var(--display);font-weight:400;font-size:19px;letter-spacing:.03em;display:block}
+.r-head span{font-size:12px;color:#5E584A}
+.r-no{margin-left:auto;text-align:right;font-family:var(--cond);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#5E584A}
+.r-no strong{display:block;font-size:20px;color:#16130A;letter-spacing:.02em;white-space:nowrap}
+.r-lines{border-top:1px dashed #BDB5A0;border-bottom:1px dashed #BDB5A0;padding-block:8px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.r-lines div{display:flex;justify-content:space-between;gap:12px}
+.r-lines span:last-child{font-variant-numeric:tabular-nums;font-weight:600}
+.r-foot{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;color:#5E584A}
+.r-foot b{font-size:24px;color:#16130A;font-variant-numeric:tabular-nums}
+
+.form{display:flex;flex-direction:column;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.03em}
+.field input,.field select{height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);padding:0 12px;width:100%;min-width:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--muted);cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--gold);flex:none;margin:1px 0 0}
+.note{font-size:13px;color:var(--muted);line-height:1.45}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions .btn{flex:1}
+
+.fab{position:fixed;right:max(16px,calc(env(safe-area-inset-right,0px) + 16px));bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:15;height:52px;padding:0 20px;border-radius:26px;border:0;background:var(--gold);color:var(--gold-ink);font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer}
+.fab svg{width:20px;height:20px}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--fg);color:var(--black);font-weight:600;padding:12px 18px;border-radius:12px;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.5)}
+
+@media (max-width:380px){
+  .stats{grid-template-columns:1fr 1fr}
+  .mats{grid-template-columns:40px 1fr 1fr;gap:6px}
+  .cls{padding:8px}
+}
+</style>
+</head>
+<body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>window.BK_LOGO="img/logo-256.webp"</script>
+<header class="top">
+  <div class="top-in">
+    <img src="img/logo-256.webp" alt="Emblema de Baekho Doyang">
+    <div class="brand"><b>BAEKHO DOYANG</b><small>Escuela de artes marciales</small></div>
+    <button class="icon-btn" id="btn-ojo" data-action="ojo" aria-label="Mostrar importes" aria-pressed="false"></button>
+    <button class="icon-btn" id="btn-ajustes" data-action="ajustes" aria-label="Ajustes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="view"></main>
+
+<button class="fab" id="fab" data-action="nuevo" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nuevo alumno
+</button>
+
+<nav class="tabs" aria-label="Secciones">
+  <div class="tabs-in">
+    <button class="tab" data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Inicio</button>
+    <button class="tab" data-tab="cobros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19M6.5 15h4"/></svg>Cobros<span class="badge" id="badge-cobros" hidden></span></button>
+    <button class="tab" data-tab="alumnos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.7.8 2.7 2.6 3 5.2"/></svg>Alumnos</button>
+    <button class="tab" data-tab="horario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4M7.5 13.5h3M13.5 13.5h3M7.5 17h3"/></svg>Horario</button>
+  </div>
+</nav>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+"use strict";
+
+/* ===================== Utilidades ===================== */
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const MESES_C = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+const pad = n => String(n).padStart(2,"0");
+const isoDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const ymOf = s => s.slice(0,7);
+const addMonths = (ym, n) => { let [y,m] = ym.split("-").map(Number); m += n; while (m > 12) { m -= 12; y++; } while (m < 1) { m += 12; y--; } return `${y}-${pad(m)}`; };
+const mesNombre = ym => MESES[Number(ym.slice(5,7))-1];
+const mesLargo = ym => `${mesNombre(ym)} ${ym.slice(0,4)}`;
+const mesCorto = ym => MESES_C[Number(ym.slice(5,7))-1];
+const fechaCorta = s => `${Number(s.slice(8,10))}/${Number(s.slice(5,7))}/${s.slice(0,4)}`;
+const eur = n => new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR",minimumFractionDigits:0,maximumFractionDigits:2}).format(n);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const telFmt = t => t.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3");
+const UI_VER = {ver:false};
+const M = n => UI_VER.ver ? eur(n) : `<span class="oculto" aria-label="Importe oculto">•••• €</span>`;
+const waLink = (tel, msg) => `https://wa.me/34${tel}?text=${encodeURIComponent(msg)}`;
+
+const HOY_D = new Date();
+const HOY = isoDate(HOY_D);
+const MES_ACTUAL = ymOf(HOY);
+const CURSO_INICIO = (HOY_D.getMonth() >= 8 ? HOY_D.getFullYear() : HOY_D.getFullYear()-1) + "-09";
+
+/* ===================== Catálogo ===================== */
+const DISC = {
+  hapkido:  {nombre:"Hapkido Jin Jung Kwan", corto:"Hapkido", color:"#EF2B2F"},
+  tkd:      {nombre:"Taekwondo", corto:"Taekwondo", color:"#4F7BE0"},
+  defensa:  {nombre:"Defensa personal para mujeres", corto:"Defensa personal", color:"#C46BD8"},
+  wing:     {nombre:"Wing Fight", corto:"Wing Fight", color:"#E3C73E"},
+  kum:      {nombre:"Kum Moo Yeh (espada y arco)", corto:"Kum Moo Yeh", color:"#4BC28A"},
+};
+const CINTURONES = [
+  {n:"Blanco", c:"#F4F1E6"},{n:"Amarillo", c:"#E8D23A"},{n:"Naranja", c:"#EE8A2B"},{n:"Verde", c:"#3FA65A"},
+  {n:"Azul", c:"#3A66D6"},{n:"Rojo", c:"#D9262B"},{n:"Negro", c:"#050505"},
+];
+const beltColor = n => (CINTURONES.find(b => b.n === n) || {c:"transparent"}).c;
+
+/* Horario de ejemplo: se sustituye por el real cuando lo aprueben */
+const CLASES = [
+  {id:"t1-lx-17", tatami:1, dias:"LX", hora:"17:00", disc:"hapkido", grupo:"Infantil (6-9 años)", tipo:"nino"},
+  {id:"t1-lx-18", tatami:1, dias:"LX", hora:"18:00", disc:"hapkido", grupo:"Juvenil (10-15 años)", tipo:"nino"},
+  {id:"t1-lx-19", tatami:1, dias:"LX", hora:"19:00", disc:"hapkido", grupo:"Adultos", tipo:"adulto"},
+  {id:"t1-lx-20", tatami:1, dias:"LX", hora:"20:00", disc:"defensa", grupo:"Mujeres", tipo:"mujer"},
+  {id:"t1-mj-17", tatami:1, dias:"MJ", hora:"17:00", disc:"hapkido", grupo:"Infantil (6-9 años)", tipo:"nino"},
+  {id:"t1-mj-18", tatami:1, dias:"MJ", hora:"18:00", disc:"hapkido", grupo:"Juvenil (10-15 años)", tipo:"nino"},
+  {id:"t1-mj-19", tatami:1, dias:"MJ", hora:"19:00", disc:"kum", grupo:"Adultos", tipo:"adulto"},
+  {id:"t2-lx-17", tatami:2, dias:"LX", hora:"17:00", disc:"tkd", grupo:"Infantil (6-9 años)", tipo:"nino"},
+  {id:"t2-lx-18", tatami:2, dias:"LX", hora:"18:00", disc:"tkd", grupo:"Juvenil (10-15 años)", tipo:"nino"},
+  {id:"t2-lx-19", tatami:2, dias:"LX", hora:"19:00", disc:"wing", grupo:"Jóvenes y adultos", tipo:"adulto"},
+  {id:"t2-mj-17", tatami:2, dias:"MJ", hora:"17:00", disc:"tkd", grupo:"Infantil (6-9 años)", tipo:"nino"},
+  {id:"t2-mj-18", tatami:2, dias:"MJ", hora:"18:00", disc:"tkd", grupo:"Juvenil (10-15 años)", tipo:"nino"},
+  {id:"t2-mj-19", tatami:2, dias:"MJ", hora:"19:00", disc:"tkd", grupo:"Adultos", tipo:"adulto"},
+  {id:"t2-mj-20", tatami:2, dias:"MJ", hora:"20:00", disc:"wing", grupo:"Jóvenes y adultos", tipo:"adulto"},
+];
+const HORAS = ["17:00","18:00","19:00","20:00"];
+const claseById = id => CLASES.find(c => c.id === id);
+const diasTxt = d => d === "LX" ? "Lunes y miércoles" : "Martes y jueves";
+const claseTxt = c => `${DISC[c.disc].corto} · ${c.grupo}`;
+const claseHoraTxt = c => `${c.dias === "LX" ? "L y X" : "M y J"} ${c.hora} · Tatami ${c.tatami}`;
+const CAPACIDAD = 16;
+
+/* ===================== Datos ===================== */
+const AJUSTES_BASE = {cuota:40, diaLimite:5, academiaTel:"635576114", direccion:"Avenida de Adolfo Suárez, 50", localidad:"Dos Hermanas (Sevilla)"};
+const KEY = "bk-gestion-demo-v2";
+let S;
+
+function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+function seed(){
+  const r = rng(77031);
+  const pick = a => a[Math.floor(r()*a.length)];
+  const NOM_H = ["Pablo","Hugo","Mateo","Leo","Daniel","Álvaro","Martín","Lucas","Adrián","Marcos","Izan","Diego","Bruno","Gael","Enzo","Iker","Nicolás","Sergio","Javier","Rubén"];
+  const NOM_M = ["Lucía","Sofía","Martina","Paula","Julia","Valeria","Daniela","Alba","Carla","Noa","Vega","Irene","Claudia","Elena","Laura","Marta","Nerea","Sara","Ainhoa","Cristina"];
+  const AP = ["García","Martínez","López","Sánchez","Pérez","Gómez","Fernández","Ruiz","Díaz","Moreno","Álvarez","Romero","Navarro","Torres","Domínguez","Gil","Vázquez","Serrano","Ramos","Molina","Castro","Ortega","Rubio","Marín","Iglesias","Medina","Garrido","Cortés","Castillo","Santos"];
+  const PADRES = ["Raquel","Javier","Silvia","David","Ana","Carlos","Beatriz","Óscar","Patricia","Miguel","Mónica","Alberto","Nuria","Fernando","Rocío","Jorge","Eva","Antonio","Sonia","Raúl"];
+  const year = Number(MES_ACTUAL.slice(0,4));
+  const familias = [], alumnos = [];
+  let fid = 0, aid = 0, telN = 100;
+  const tel = () => `6${pad(Math.floor(r()*90)+10)}${String(1000000 + (telN++)*7919 % 999999).slice(1)}`.slice(0,9);
+  const altaDate = (reciente) => {
+    if (reciente) { const m = addMonths(MES_ACTUAL, -Math.floor(r()*2)); return `${m}-${pad(1+Math.floor(r()*14))}`; }
+    const y = year - 1 - Math.floor(r()*3); return `${y}-${pad(9+Math.floor(r()*3))}-${pad(1+Math.floor(r()*27))}`;
+  };
+  const belt = (c, edadNino) => {
+    if (c.disc === "hapkido" || c.disc === "tkd") { const max = edadNino ? 5 : 7; return CINTURONES[Math.min(Math.floor(r()*r()*max), 6)].n; }
+    return "";
+  };
+  const kidClases = CLASES.filter(c => c.tipo === "nino");
+  const adClases = CLASES.filter(c => c.tipo !== "nino");
+  // Familias con hijos
+  for (let i = 0; i < 34; i++) {
+    const ap1 = pick(AP), ap2 = pick(AP);
+    const f = {id:`F${++fid}`, contacto:`${pick(PADRES)} ${ap1}`, telefono:tel()};
+    familias.push(f);
+    const nHijos = r() < .22 ? 2 : 1;
+    for (let h = 0; h < nHijos; h++) {
+      const c = pick(kidClases); const chica = r() < .42;
+      const edadMin = c.grupo.startsWith("Infantil") ? 6 : 10, edadMax = c.grupo.startsWith("Infantil") ? 9 : 15;
+      alumnos.push({id:`A${++aid}`, nombre: chica ? pick(NOM_M) : pick(NOM_H), apellidos:`${ap1} ${ap2}`, nacimiento: year - (edadMin + Math.floor(r()*(edadMax-edadMin+1))), familiaId:f.id, claseId:c.id, cinturon:belt(c,true), alta:altaDate(r() < .1), consentimiento:true, activo:true});
+    }
+  }
+  // Adultos (contacto = el propio alumno)
+  for (let i = 0; i < 17; i++) {
+    const c = pick(adClases); const mujer = c.tipo === "mujer" || r() < .35;
+    const nombre = mujer ? pick(NOM_M) : pick(NOM_H), apellidos = `${pick(AP)} ${pick(AP)}`;
+    const f = {id:`F${++fid}`, contacto:`${nombre} ${apellidos.split(" ")[0]}`, telefono:tel()};
+    familias.push(f);
+    alumnos.push({id:`A${++aid}`, nombre, apellidos, nacimiento: year - (18 + Math.floor(r()*30)), familiaId:f.id, claseId:c.id, cinturon:belt(c,false), alta:altaDate(r() < .1), consentimiento:true, activo:true});
+  }
+  // Recibos del curso
+  const st = {familias, alumnos, recibos:[], ajustes:{...AJUSTES_BASE}, contador:{}};
+  const pendientes = [];
+  const meses = []; for (let m = CURSO_INICIO; m <= MES_ACTUAL; m = addMonths(m,1)) meses.push(m);
+  const dia = HOY_D.getDate();
+  for (const m of meses) {
+    for (const f of familias) {
+      const hijos = alumnos.filter(a => a.familiaId === f.id && ymOf(a.alta) <= m);
+      if (!hijos.length) continue;
+      let p, d;
+      if (m < MES_ACTUAL) { p = m === addMonths(MES_ACTUAL,-1) ? .93 : .99; d = r() < .8 ? 1 + Math.floor(r()*5) : 6 + Math.floor(r()*12); }
+      else { p = dia <= 5 ? .25 + dia*.1 : .78; const maxD = Math.max(1, dia); d = Math.min(maxD, r() < .85 ? 1 + Math.floor(r()*5) : 6 + Math.floor(r()*Math.max(1, dia-5))); }
+      if (r() > p) continue;
+      pendientes.push({fecha:`${m}-${pad(Math.min(d,28))}`, familiaId:f.id, metodo: r() < .62 ? "efectivo" : "bizum", lineas: hijos.map(a => ({alumnoId:a.id, mes:m, importe:40}))});
+    }
+  }
+  pendientes.sort((a,b) => a.fecha.localeCompare(b.fecha));
+  for (const p of pendientes) { if (p.fecha > HOY) p.fecha = HOY; st.recibos.push({no: nextNo(st, p.fecha), ...p}); }
+  return st;
+}
+function nextNo(st, fecha){ const y = fecha.slice(0,4); st.contador[y] = (st.contador[y] || 0) + 1; return `${y}-${String(st.contador[y]).padStart(4,"0")}`; }
+function load(){ try { const raw = localStorage.getItem(KEY); if (raw) { S = JSON.parse(raw); S.ajustes = {...AJUSTES_BASE, ...S.ajustes}; return; } } catch(e){} S = seed(); save(); }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+
+/* ===================== Reglas de cobro ===================== */
+const famById = id => S.familias.find(f => f.id === id);
+const aluById = id => S.alumnos.find(a => a.id === id);
+const hijosDe = fid => S.alumnos.filter(a => a.familiaId === fid && a.activo);
+const nombreCompleto = a => `${a.nombre} ${a.apellidos}`;
+function pagosIndex(){ const ix = new Map(); for (const r of S.recibos) for (const l of r.lineas) ix.set(`${l.alumnoId}|${l.mes}`, r); return ix; }
+let IX = new Map();
+const reIndex = () => { IX = pagosIndex(); };
+const debeMes = (a, m) => a.activo && ymOf(a.alta) <= m && m >= CURSO_INICIO && (!a.baja || ymOf(a.baja) > m);
+function estado(a, m){
+  if (!debeMes(a, m)) return null;
+  const r = IX.get(`${a.id}|${m}`);
+  if (r) return {k:"ok", recibo:r};
+  if (m < MES_ACTUAL || (m === MES_ACTUAL && HOY_D.getDate() > S.ajustes.diaLimite)) return {k:"late"};
+  return {k:"pend"};
+}
+function mesesDebidos(a){ const out = []; for (let m = CURSO_INICIO; m <= MES_ACTUAL; m = addMonths(m,1)) { const e = estado(a, m); if (e && e.k !== "ok") out.push(m); } return out; }
+function pill(e){
+  if (!e) return `<span class="pill p-none">Sin cuota</span>`;
+  if (e.k === "ok") return `<span class="pill p-ok">Pagado</span>`;
+  if (e.k === "late") return `<span class="pill p-late">Atrasado</span>`;
+  return `<span class="pill p-pend">Pendiente</span>`;
+}
+function resumenMes(m){
+  let alumnos = 0, pagados = 0, ef = 0, bz = 0, late = 0, pend = 0;
+  for (const a of S.alumnos) { const e = estado(a, m); if (!e) continue; alumnos++; if (e.k === "ok") { pagados++; const l = e.recibo.lineas.find(l => l.alumnoId === a.id && l.mes === m); (e.recibo.metodo === "bizum" ? (bz += l.importe) : (ef += l.importe)); } else if (e.k === "late") late++; else pend++; }
+  return {alumnos, pagados, ef, bz, late, pend, previsto: alumnos * S.ajustes.cuota};
+}
+function familiasConDeuda(){
+  const out = [];
+  for (const f of S.familias) { const hijos = hijosDe(f.id); const lines = []; for (const a of hijos) for (const m of mesesDebidos(a)) { const e = estado(a, m); lines.push({a, m, late: e.k === "late"}); } if (lines.length) out.push({f, lines, late: lines.some(l => l.late)}); }
+  return out;
+}
+
+/* ===================== Mensajes de WhatsApp ===================== */
+const saludo = f => f.contacto.split(" ")[0];
+function msgRecibo(r){
+  const f = famById(r.familiaId);
+  const total = r.lineas.reduce((s,l) => s + l.importe, 0);
+  const lineas = r.lineas.map(l => { const a = aluById(l.alumnoId); return `• ${a.nombre} ${a.apellidos.split(" ")[0]}: ${cap(mesLargo(l.mes))} (${eur(l.importe)})`; }).join("\n");
+  return `Hola ${saludo(f)}, te enviamos el recibo de Baekho Doyang 🐯\n\n*Recibo nº ${r.no}*\nFecha: ${fechaCorta(r.fecha)}\n${lineas}\n*Total: ${eur(total)}*\nPagado en ${r.metodo === "bizum" ? "Bizum" : "efectivo"}\n\nGracias. Guarda este mensaje como justificante.`;
+}
+function msgRecordatorio(f, lines){
+  const cuota = S.ajustes.cuota;
+  const det = lines.map(l => `• ${l.a.nombre}: ${cap(mesLargo(l.m))}`).join("\n");
+  const total = lines.reduce((s,l) => s + cuota, 0);
+  return `Hola ${saludo(f)}, te escribimos de Baekho Doyang 🐯\n\nTe recordamos que está pendiente el pago de:\n${det}\n*Total: ${eur(total)}*\n\nSe puede pagar en efectivo en la escuela o por Bizum. Si ya lo has pagado, avísanos y lo revisamos. ¡Gracias!`;
+}
+
+/* ===================== Iconos ===================== */
+const I = {
+  wa:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.2-.1-.4-.2z"/></svg>`,
+  x:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>`,
+  search:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>`,
+  ojo:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  ojoNo:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.9 10.9 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6A17.4 17.4 0 0 0 2 12s3.6 7 10 7a10 10 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>`,
+  pdf:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2.5H6.5a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V8z"/><path d="M14 2.5V8h5.5M12 11.5v6M9.5 15l2.5 2.5 2.5-2.5"/></svg>`,
+  chev:`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--muted)"><path d="m9 6 6 6-6 6"/></svg>`,
+};
+
+/* ===================== Estado de la interfaz ===================== */
+const UI = {tab:"inicio", mesCobros: MES_ACTUAL, filtroCobros:"pendientes", q:"", disc:"todas", dias: [2,4].includes(HOY_D.getDay()) ? "MJ" : "LX"};
+try { const t = sessionStorage.getItem("bk-tab"); if (t) UI.tab = t; } catch(e){}
+
+const view = document.getElementById("view");
+const scrim = document.getElementById("scrim");
+
+function avatar(a){
+  const c = DISC[claseById(a.claseId).disc].color;
+  const ini = (a.nombre[0] + a.apellidos[0]).toUpperCase();
+  return `<span class="avatar" style="background:${c}">${esc(ini)}${a.cinturon ? `<i class="belt" style="background:${beltColor(a.cinturon)}"></i>` : ""}</span>`;
+}
+
+/* ---------- Inicio ---------- */
+function vInicio(){
+  const R = resumenMes(MES_ACTUAL);
+  const cobrado = R.ef + R.bz;
+  const deudas = familiasConDeuda().filter(d => d.late).sort((a,b) => b.lines.length - a.lines.length);
+  const dow = HOY_D.getDay();
+  const hoyDias = dow === 1 || dow === 3 ? "LX" : dow === 2 || dow === 4 ? "MJ" : null;
+  const clasesHoy = hoyDias ? CLASES.filter(c => c.dias === hoyDias).sort((a,b) => a.hora.localeCompare(b.hora) || a.tatami - b.tatami) : [];
+  const ultimos = [...S.recibos].sort((a,b) => b.fecha.localeCompare(a.fecha) || b.no.localeCompare(a.no)).slice(0,4);
+  const plazo = HOY_D.getDate() <= S.ajustes.diaLimite ? `Plazo de pago: hasta el día ${S.ajustes.diaLimite}` : `El plazo terminó el día ${S.ajustes.diaLimite}`;
+  return `
+  <p class="demo-flag">Prototipo con alumnos, teléfonos y horario de ejemplo. Nada de esto son datos reales.</p>
+  <div><h1>${cap(DIAS[dow])}, ${HOY_D.getDate()} de ${MESES[HOY_D.getMonth()]}</h1></div>
+  <section class="month-card" aria-label="Cobros del mes">
+    <div class="eyebrow">Mensualidad de ${mesNombre(MES_ACTUAL)} · ${plazo}</div>
+    <div class="big num">${M(cobrado)}<small>de ${M(R.previsto)}</small></div>
+    <div class="bar" role="img" aria-label="Progreso de cobro del mes"><i class="b-ef" style="width:${R.previsto ? R.ef/R.previsto*100 : 0}%"></i><i class="b-bz" style="width:${R.previsto ? R.bz/R.previsto*100 : 0}%"></i></div>
+    <div class="legend"><span><i style="background:var(--gold)"></i>Efectivo ${M(R.ef)}</span><span><i style="background:var(--blue-soft)"></i>Bizum ${M(R.bz)}</span></div>
+    <div class="stats">
+      <div class="stat okk"><b>${R.pagados}</b><span>Pagados</span></div>
+      <div class="stat ${R.late ? "warn" : ""}"><b>${R.late}</b><span>Atrasados</span></div>
+      <div class="stat"><b>${R.pend}</b><span>En plazo</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h2>Por recordar (${deudas.length})</h2>${deudas.length ? `<button class="link" data-action="ir-cobros">Ver todos</button>` : ""}</div>
+    <div class="list">${deudas.length ? deudas.slice(0,5).map(d => filaDeuda(d)).join("") : `<div class="empty">Nadie tiene pagos atrasados.</div>`}</div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h2>${hoyDias ? "Clases de hoy" : "Hoy no hay clase"}</h2><button class="link" data-action="ir-horario">Horario</button></div>
+    ${hoyDias ? `<div class="list">${clasesHoy.map(c => { const n = S.alumnos.filter(a => a.activo && a.claseId === c.id).length; return `<button class="row" data-action="clase" data-id="${c.id}"><span class="hour" style="padding:0;width:46px">${c.hora}</span><span class="main"><span class="t"><span class="disc-dot" style="background:${DISC[c.disc].color}"></span>${esc(claseTxt(c))}</span><span class="s">Tatami ${c.tatami} · ${n} alumnos</span></span>${I.chev}</button>`; }).join("")}</div>` : `<div class="list"><div class="empty">Las clases son de lunes a jueves.</div></div>`}
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h2>Últimos recibos</h2></div>
+    <div class="list">${ultimos.map(filaRecibo).join("")}</div>
+  </section>`;
+}
+function filaDeuda(d){
+  const nombres = [...new Set(d.lines.map(l => l.a.nombre))].join(" y ");
+  const meses = [...new Set(d.lines.map(l => mesCorto(l.m)))].join(", ");
+  return `<div class="row" style="cursor:default">
+    <button class="main" data-action="cobrar" data-fam="${d.f.id}" style="background:none;border:0;text-align:left;cursor:pointer;padding:0">
+      <span class="t">${esc(nombres)} <span style="color:var(--muted);font-weight:400">${esc(d.lines[0].a.apellidos.split(" ")[0])}</span></span>
+      <span class="s">Debe ${esc(meses)} · ${M(d.lines.length * S.ajustes.cuota)}</span>
+    </button>
+    <span class="end"><a class="btn sm wa" href="${waLink(d.f.telefono, msgRecordatorio(d.f, d.lines))}" target="_blank" rel="noopener" data-action="recordar" data-fam="${d.f.id}">${I.wa}Recordar</a></span>
+  </div>`;
+}
+function filaRecibo(r){
+  const f = famById(r.familiaId);
+  const nombres = [...new Set(r.lineas.map(l => aluById(l.alumnoId).nombre))].join(" y ");
+  const total = r.lineas.reduce((s,l) => s + l.importe, 0);
+  return `<button class="row" data-action="recibo" data-no="${r.no}">
+    <span class="main"><span class="t">${esc(nombres)} ${esc(aluById(r.lineas[0].alumnoId).apellidos.split(" ")[0])}</span><span class="s num">Nº ${r.no} · ${fechaCorta(r.fecha)} · ${[...new Set(r.lineas.map(l => mesCorto(l.m ?? l.mes)))].join(", ")}</span></span>
+    <span class="end"><span class="tag ${r.metodo === "bizum" ? "bz" : "ef"}">${r.metodo === "bizum" ? "Bizum" : "Efectivo"}</span><b class="num">${M(total)}</b></span>
+  </button>`;
+}
+
+/* ---------- Cobros ---------- */
+function vCobros(){
+  const m = UI.mesCobros;
+  const meses = []; for (let x = CURSO_INICIO; x <= MES_ACTUAL; x = addMonths(x,1)) meses.push(x);
+  const R = resumenMes(m);
+  const alumnos = S.alumnos.filter(a => estado(a, m)).sort((a,b) => a.apellidos.localeCompare(b.apellidos));
+  const pend = alumnos.filter(a => estado(a,m).k !== "ok");
+  const pag = alumnos.filter(a => estado(a,m).k === "ok");
+  const lista = UI.filtroCobros === "pendientes" ? pend.sort((a,b) => (estado(b,m).k === "late") - (estado(a,m).k === "late")) : UI.filtroCobros === "pagados" ? pag : alumnos;
+  const recibosMes = S.recibos.filter(r => r.lineas.some(l => l.mes === m)).length;
+  return `
+  <div><h1>Cobros</h1></div>
+  <div class="chips" role="group" aria-label="Mes">${meses.map(x => `<button class="chip" aria-pressed="${x === m}" data-action="mes" data-m="${x}">${cap(mesNombre(x))}</button>`).join("")}</div>
+  <section class="month-card" style="gap:10px">
+    <div class="eyebrow">${cap(mesLargo(m))}</div>
+    <div class="big num" style="font-size:36px">${M(R.ef + R.bz)}<small>de ${M(R.previsto)}</small></div>
+    <div class="bar"><i class="b-ef" style="width:${R.previsto ? R.ef/R.previsto*100 : 0}%"></i><i class="b-bz" style="width:${R.previsto ? R.bz/R.previsto*100 : 0}%"></i></div>
+    <div class="legend"><span><i style="background:var(--gold)"></i>Efectivo ${M(R.ef)}</span><span><i style="background:var(--blue-soft)"></i>Bizum ${M(R.bz)}</span><span>${recibosMes} recibos</span></div>
+  </section>
+  <div class="seg" role="group" aria-label="Filtro">
+    <button aria-pressed="${UI.filtroCobros === "pendientes"}" data-action="filtro" data-f="pendientes">Sin pagar · ${pend.length}</button>
+    <button aria-pressed="${UI.filtroCobros === "pagados"}" data-action="filtro" data-f="pagados">Pagados · ${pag.length}</button>
+    <button aria-pressed="${UI.filtroCobros === "todos"}" data-action="filtro" data-f="todos">Todos</button>
+  </div>
+  <div class="list">${lista.length ? lista.map(a => { const e = estado(a, m); const c = claseById(a.claseId);
+    return `<button class="row" data-action="${e.k === "ok" ? "recibo" : "cobrar"}" data-fam="${a.familiaId}" data-no="${e.recibo ? e.recibo.no : ""}">
+      ${avatar(a)}<span class="main"><span class="t">${esc(nombreCompleto(a))}</span><span class="s">${e.k === "ok" ? `Nº ${e.recibo.no} · ${fechaCorta(e.recibo.fecha)} · ${e.recibo.metodo === "bizum" ? "Bizum" : "Efectivo"}` : esc(claseTxt(c))}</span></span>
+      <span class="end">${pill(e)}</span></button>`; }).join("") : `<div class="empty">${UI.filtroCobros === "pendientes" ? "Todo cobrado este mes." : "Todavía no hay pagos este mes."}</div>`}</div>`;
+}
+
+/* ---------- Alumnos ---------- */
+function vAlumnos(){
+  const q = UI.q.trim().toLowerCase();
+  const activos = S.alumnos.filter(a => a.activo);
+  const cuenta = d => activos.filter(a => claseById(a.claseId).disc === d).length;
+  const lista = activos.filter(a => (UI.disc === "todas" || claseById(a.claseId).disc === UI.disc) && (!q || (nombreCompleto(a) + " " + famById(a.familiaId).contacto).toLowerCase().includes(q))).sort((a,b) => a.apellidos.localeCompare(b.apellidos) || a.nombre.localeCompare(b.nombre));
+  return `
+  <div class="sec-head"><h1>Alumnos</h1><span class="num" style="color:var(--muted)">${activos.length} activos</span></div>
+  <label class="search">${I.search}<input id="q" type="search" placeholder="Buscar alumno o familia" value="${esc(UI.q)}" autocomplete="off"></label>
+  <div class="chips" role="group" aria-label="Disciplina">
+    <button class="chip" aria-pressed="${UI.disc === "todas"}" data-action="disc" data-d="todas">Todas<span class="c">${activos.length}</span></button>
+    ${Object.entries(DISC).map(([k,d]) => `<button class="chip" aria-pressed="${UI.disc === k}" data-action="disc" data-d="${k}"><span class="disc-dot" style="background:${d.color}"></span>${d.corto}<span class="c">${cuenta(k)}</span></button>`).join("")}
+  </div>
+  <div class="list" id="lista-alumnos">${lista.length ? lista.map(a => { const c = claseById(a.claseId); const deb = mesesDebidos(a);
+    return `<button class="row" data-action="alumno" data-id="${a.id}">${avatar(a)}<span class="main"><span class="t">${esc(nombreCompleto(a))}</span><span class="s">${esc(claseTxt(c))} · ${claseHoraTxt(c).split(" · ")[0]}</span></span><span class="end">${deb.length ? `<span class="pill ${deb.some(m => estado(a,m).k === "late") ? "p-late" : "p-pend"}">Debe ${deb.length}</span>` : ""}${I.chev}</span></button>`; }).join("") : `<div class="empty">No hay alumnos con ese nombre.</div>`}</div>`;
+}
+
+/* ---------- Horario ---------- */
+function vHorario(){
+  const d = UI.dias;
+  const celda = (t, h) => { const c = CLASES.find(c => c.tatami === t && c.dias === d && c.hora === h);
+    if (!c) return `<div class="cls free"><span>Libre</span></div>`;
+    const n = S.alumnos.filter(a => a.activo && a.claseId === c.id).length;
+    return `<button class="cls" data-action="clase" data-id="${c.id}" style="border-left:4px solid ${DISC[c.disc].color}"><b>${DISC[c.disc].corto}</b><span>${esc(c.grupo)}</span><span class="occ"><i><em style="width:${Math.min(100,n/CAPACIDAD*100)}%"></em></i>${n}</span></button>`; };
+  return `
+  <div><h1>Horario</h1></div>
+  <p class="demo-flag">Horario de ejemplo. Lo cambiamos por el real cuando la escuela lo apruebe.</p>
+  <div class="seg" role="group" aria-label="Días">
+    <button aria-pressed="${d === "LX"}" data-action="dias" data-d="LX">Lunes y miércoles</button>
+    <button aria-pressed="${d === "MJ"}" data-action="dias" data-d="MJ">Martes y jueves</button>
+  </div>
+  <div class="mats">
+    <span></span><div class="mat-h t1">Tatami 1</div><div class="mat-h t2">Tatami 2</div>
+    ${HORAS.map(h => `<div class="hour">${h}</div>${celda(1,h)}${celda(2,h)}`).join("")}
+  </div>
+  <p class="note">Cada clase dura una hora. La barra indica cuántos alumnos hay apuntados sobre ${CAPACIDAD} plazas (capacidad de ejemplo).</p>`;
+}
+
+/* ---------- Render ---------- */
+function render(){
+  reIndex();
+  const v = {inicio:vInicio, cobros:vCobros, alumnos:vAlumnos, horario:vHorario}[UI.tab];
+  view.innerHTML = v();
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-current", t.dataset.tab === UI.tab ? "page" : "false"));
+  document.getElementById("fab").hidden = UI.tab !== "alumnos";
+  const ojo = document.getElementById("btn-ojo");
+  ojo.innerHTML = UI_VER.ver ? I.ojo : I.ojoNo; ojo.setAttribute("aria-pressed", UI_VER.ver); ojo.setAttribute("aria-label", UI_VER.ver ? "Ocultar importes" : "Mostrar importes");
+  const late = familiasConDeuda().filter(d => d.late).length;
+  const b = document.getElementById("badge-cobros"); b.hidden = !late; b.textContent = late;
+  try { sessionStorage.setItem("bk-tab", UI.tab); } catch(e){}
+}
+function go(tab){ UI.tab = tab; render(); window.scrollTo(0,0); }
+
+/* ===================== Hojas ===================== */
+function openSheet(html){
+  scrim.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div>`;
+  scrim.hidden = false; document.body.style.overflow = "hidden";
+}
+function closeSheet(){ scrim.hidden = true; scrim.innerHTML = ""; document.body.style.overflow = ""; }
+const head = (t, s) => `<div class="sheet-h"><div class="main"><h3>${t}</h3>${s ? `<p>${s}</p>` : ""}</div><button class="close" data-action="cerrar" aria-label="Cerrar">${I.x}</button></div>`;
+
+/* ---------- Cobrar ---------- */
+let COBRO = null;
+function sheetCobrar(fid){
+  reIndex();
+  const f = famById(fid);
+  const hijos = hijosDe(fid);
+  const lines = [];
+  for (const a of hijos) {
+    for (const m of mesesDebidos(a)) lines.push({a, m, sel:true, late: estado(a,m).k === "late"});
+    const sig = addMonths(MES_ACTUAL, 1);
+    if (!IX.get(`${a.id}|${sig}`) && ymOf(a.alta) <= sig) lines.push({a, m:sig, sel:false, adelanto:true});
+  }
+  COBRO = {f, lines, metodo:"efectivo"};
+  drawCobrar();
+}
+function previewRecibo(){
+  const sel = COBRO.lines.filter(l => l.sel);
+  return {no: `${HOY.slice(0,4)}-${String((S.contador[HOY.slice(0,4)] || 0) + 1).padStart(4,"0")}`, fecha: HOY, familiaId: COBRO.f.id, metodo: COBRO.metodo, lineas: sel.map(l => ({alumnoId:l.a.id, mes:l.m, importe:S.ajustes.cuota}))};
+}
+function drawCobrar(){
+  const {f, lines, metodo} = COBRO;
+  const r = previewRecibo();
+  const total = r.lineas.reduce((s,l) => s + l.importe, 0);
+  const hijos = hijosDe(f.id);
+  openSheet(`
+    ${head("Cobrar", `${esc(hijos.map(h => h.nombre).join(" y "))} ${esc(hijos[0].apellidos.split(" ")[0])} · Contacto: ${esc(f.contacto)}`)}
+    <div class="lines">${lines.map((l,i) => `<label class="line"><input type="checkbox" id="ln-${i}" data-action="linea" data-i="${i}" ${l.sel ? "checked" : ""}><span class="main"><b>${cap(mesLargo(l.m))}</b><span>${esc(l.a.nombre)} · ${l.adelanto ? "Adelantar el mes siguiente" : l.late ? "Atrasado" : "En plazo"}</span></span><span class="amt">${eur(S.ajustes.cuota)}</span></label>`).join("")}</div>
+    <div class="methods" role="group" aria-label="Método de pago">
+      <button class="method" aria-pressed="${metodo === "efectivo"}" data-action="metodo" data-m="efectivo"><b>Efectivo</b><span>En mano, en la escuela</span></button>
+      <button class="method" aria-pressed="${metodo === "bizum"}" data-action="metodo" data-m="bizum"><b>Bizum</b><span>Comprobado en el banco</span></button>
+    </div>
+    <div class="total"><span>Total · recibo nº ${r.no}</span><b class="num">${eur(total)}</b></div>
+    <button class="btn block gold" id="btn-cobrar" data-action="confirmar" aria-disabled="${!r.lineas.length}">Cobrar ${eur(total)}</button>
+    <p class="note">Se guarda el pago con su número de recibo y después lo envías en PDF por WhatsApp a ${esc(f.contacto)} (${telFmt(f.telefono)}).</p>`);
+}
+function confirmarCobro(){
+  const p = previewRecibo();
+  if (!p.lineas.length) return false;
+  const r = {...p, no: nextNo(S, p.fecha)};
+  S.recibos.push(r); save(); render();
+  sheetRecibo(r.no, true);
+  toast(`Cobrado ${eur(r.lineas.reduce((s,l) => s + l.importe, 0))} · recibo ${r.no}`);
+  return true;
+}
+
+/* ---------- Recibo ---------- */
+function reciboHTML(r){
+  const f = famById(r.familiaId);
+  const total = r.lineas.reduce((s,l) => s + l.importe, 0);
+  return `<div class="receipt">
+    <div class="r-head"><img src="${window.BK_LOGO}" alt=""><div><b>BAEKHO DOYANG</b><span>Escuela de artes marciales</span><div class="r-addr">${esc(S.ajustes.direccion)} · ${esc(S.ajustes.localidad)}<br>Tel. ${telFmt(S.ajustes.academiaTel)}</div></div><div class="r-no">Recibo<strong class="num">${r.no}</strong></div></div>
+    <div style="font-size:14px;color:#5E584A">Fecha ${fechaCorta(r.fecha)} · ${esc(f.contacto)}</div>
+    <div class="r-lines">${r.lineas.map(l => { const a = aluById(l.alumnoId); return `<div><span>${esc(nombreCompleto(a))} · ${cap(mesLargo(l.mes))}</span><span>${eur(l.importe)}</span></div>`; }).join("")}</div>
+    <div class="r-foot"><span>Pagado en ${r.metodo === "bizum" ? "Bizum" : "efectivo"}</span><b>${eur(total)}</b></div>
+  </div>`;
+}
+function sheetRecibo(no, nuevo){
+  const r = S.recibos.find(r => r.no === no); if (!r) return;
+  const f = famById(r.familiaId);
+  openSheet(`${head(nuevo ? "Pago registrado" : `Recibo ${r.no}`, nuevo ? `Recibo nº ${r.no}. Ahora envíalo a ${esc(f.contacto)}.` : `${esc(f.contacto)} · ${telFmt(f.telefono)}`)}${reciboHTML(r)}
+    <button class="btn block wa" data-action="pdf-wa" data-no="${r.no}">${I.wa}Enviar PDF por WhatsApp</button>
+    <p class="send-note" id="send-note" hidden></p>
+    <div class="actions"><button class="btn" data-action="pdf-dl" data-no="${r.no}">${I.pdf}Descargar PDF</button><a class="btn" href="${waLink(f.telefono, msgRecibo(r))}" target="_blank" rel="noopener">${I.wa}Enviar como texto</a></div>
+    <p class="note">Los recibos no se borran. Si hay un error, en la versión real se anulará con un recibo de anulación para que la numeración siga completa.</p>`);
+}
+
+/* ---------- PDF del recibo ---------- */
+let LOGO_PNG = null;
+(() => { const img = new Image(); img.onload = () => { try { const c = document.createElement("canvas"); c.width = c.height = 256; c.getContext("2d").drawImage(img, 0, 0, 256, 256); LOGO_PNG = c.toDataURL("image/png"); } catch(e){} }; img.src = window.BK_LOGO; })();
+const sinAcentos = t => t.normalize("NFD").replace(/[̀-ͯ]/g, "");
+const pdfNombre = r => { const a = aluById(r.lineas[0].alumnoId); return `Recibo ${r.no} ${sinAcentos(a.nombre + " " + a.apellidos.split(" ")[0])}.pdf`; };
+function pdfRecibo(r){
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({unit:"mm", format:"a5"});
+  const W = 148, H = 210, f = famById(r.familiaId);
+  const total = r.lineas.reduce((s,l) => s + l.importe, 0);
+  const euro = n => eur(n).replace(/ /g, " ");
+  // Banda negra con el emblema
+  doc.setFillColor(10,10,11); doc.rect(0, 0, W, 40, "F");
+  doc.setFillColor(227,199,62); doc.rect(0, 40, W, 1.2, "F");
+  if (LOGO_PNG) doc.addImage(LOGO_PNG, "PNG", 10, 6, 28, 28);
+  doc.setFont("helvetica","bold"); doc.setFontSize(18); doc.setTextColor(227,199,62); doc.text("BAEKHO DOYANG", 43, 17);
+  doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.setTextColor(230,226,214); doc.text("ESCUELA DE ARTES MARCIALES", 43, 22.5, {charSpace:.4});
+  doc.setTextColor(170,166,155); doc.setFontSize(8);
+  doc.text(`${S.ajustes.direccion} · ${S.ajustes.localidad}`, 43, 28.5);
+  doc.text(`Tel. ${telFmt(S.ajustes.academiaTel)}`, 43, 32.5);
+  // Cabecera del recibo
+  doc.setTextColor(22,19,10);
+  doc.setFont("helvetica","bold"); doc.setFontSize(20); doc.text("RECIBO", 12, 56);
+  doc.setFontSize(11); doc.text(`Nº ${r.no}`, W-12, 51, {align:"right"});
+  doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(94,88,74); doc.text(`Fecha: ${fechaCorta(r.fecha)}`, W-12, 57, {align:"right"});
+  doc.setFontSize(9); doc.text("RECIBIDO DE", 12, 68);
+  doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(22,19,10); doc.text(f.contacto, 12, 74);
+  // Tabla
+  let y = 88;
+  doc.setFillColor(244,241,230); doc.rect(10, y-6, W-20, 9, "F");
+  doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(94,88,74);
+  doc.text("ALUMNO", 13, y); doc.text("CONCEPTO", 64, y); doc.text("IMPORTE", W-13, y, {align:"right"});
+  doc.setFont("helvetica","normal"); doc.setFontSize(10.5); doc.setTextColor(22,19,10);
+  for (const l of r.lineas) {
+    y += 10; const a = aluById(l.alumnoId);
+    doc.text(doc.splitTextToSize(nombreCompleto(a), 48), 13, y);
+    doc.text(`Mensualidad ${mesLargo(l.mes)}`, 64, y);
+    doc.text(euro(l.importe), W-13, y, {align:"right"});
+    doc.setDrawColor(221,215,200); doc.setLineWidth(.2); doc.line(10, y+4, W-10, y+4);
+  }
+  // Total
+  y += 16;
+  doc.setFillColor(10,10,11); doc.roundedRect(W-72, y-8, 62, 15, 2, 2, "F");
+  doc.setTextColor(227,199,62); doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.text("TOTAL", W-68, y+1.5);
+  doc.setFontSize(15); doc.setTextColor(255,255,255); doc.text(euro(total), W-14, y+2, {align:"right"});
+  doc.setTextColor(22,19,10); doc.setFont("helvetica","normal"); doc.setFontSize(10);
+  doc.text(`Forma de pago: ${r.metodo === "bizum" ? "Bizum" : "efectivo"}`, 12, y+1.5);
+  doc.setFillColor(75,194,138); doc.roundedRect(12, y+8, 22, 7, 1.5, 1.5, "F");
+  doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.text("PAGADO", 23, y+12.8, {align:"center"});
+  // Pie
+  doc.setTextColor(140,134,120); doc.setFont("helvetica","normal"); doc.setFontSize(8);
+  doc.text("Guarda este recibo como justificante de pago. Numeración correlativa por año.", 12, H-16);
+  doc.setFillColor(239,43,47); doc.rect(0, H-6, W/2, 6, "F");
+  doc.setFillColor(47,91,196); doc.rect(W/2, H-6, W/2, 6, "F");
+  doc.setProperties({title:`Recibo ${r.no} · Baekho Doyang`, author:"Baekho Doyang"});
+  return doc.output("blob");
+}
+async function guardarArchivo(blob, nombre){
+  const dl = window.claude && window.claude.use ? await window.claude.use("downloads") : null;
+  if (dl) { try { await dl.save({filename:nombre, data:blob}); toast("PDF guardado"); } catch(e){ if (e && e.code !== "declined") toast("No se ha podido guardar el PDF aquí"); } return; }
+  const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = nombre; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+async function enviarPDF(no){
+  const r = S.recibos.find(r => r.no === no); const f = famById(r.familiaId);
+  if (!window.jspdf) { toast("No se ha podido cargar el generador de PDF"); return; }
+  const blob = pdfRecibo(r); const nombre = pdfNombre(r);
+  const file = new File([blob], nombre, {type:"application/pdf"});
+  try {
+    if (navigator.canShare && navigator.canShare({files:[file]})) { await navigator.share({files:[file], text:`Recibo nº ${r.no} de Baekho Doyang`}); toast("Recibo compartido"); return; }
+  } catch(e) { if (e && e.name === "AbortError") return; }
+  const n = document.getElementById("send-note");
+  if (n) { n.hidden = false; n.innerHTML = `Este navegador no deja adjuntar archivos a WhatsApp. En el móvil, este botón abre el menú de compartir: eliges WhatsApp, eliges a ${esc(f.contacto)} y el PDF va adjunto. Desde aquí puedes descargar el PDF.`; }
+}
+
+/* ---------- Ficha del alumno ---------- */
+function sheetAlumno(id){
+  reIndex();
+  const a = aluById(id), f = famById(a.familiaId), c = claseById(a.claseId);
+  const hermanos = hijosDe(f.id).filter(h => h.id !== a.id);
+  const meses = []; for (let m = CURSO_INICIO; m <= addMonths(MES_ACTUAL,1); m = addMonths(m,1)) meses.push(m);
+  const edad = Number(MES_ACTUAL.slice(0,4)) - a.nacimiento;
+  const recibos = S.recibos.filter(r => r.lineas.some(l => l.alumnoId === a.id)).sort((x,y) => y.no.localeCompare(x.no));
+  const deb = mesesDebidos(a);
+  const esAdulto = f.contacto.startsWith(a.nombre);
+  openSheet(`${head(esc(nombreCompleto(a)), `${edad} años · alta ${fechaCorta(a.alta)}`)}
+    <div class="months" aria-label="Pagos del curso">${meses.map(m => { const e = estado(a,m); const st = e ? (e.k === "ok" ? ["p-ok","Pagado"] : e.k === "late" ? ["p-late","Debe"] : ["p-pend","Plazo"]) : ["p-none", m > MES_ACTUAL ? "Próximo" : "—"]; return `<div class="mbox ${st[0]}">${mesCorto(m)}<small>${st[1]}</small></div>`; }).join("")}</div>
+    ${deb.length ? `<button class="btn gold block" data-action="cobrar" data-fam="${f.id}">Cobrar ${M(deb.length * S.ajustes.cuota)}</button>` : ""}
+    <dl class="kv">
+      <dt>Clase</dt><dd>${esc(claseTxt(c))}</dd>
+      <dt>Horario</dt><dd>${diasTxt(c.dias)}, ${c.hora} · Tatami ${c.tatami}</dd>
+      <dt>Cinturón</dt><dd><select id="cint-${a.id}" data-action="cinturon" data-id="${a.id}" style="background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:4px 8px"><option value="">Sin grado</option>${CINTURONES.map(b => `<option ${b.n === a.cinturon ? "selected" : ""}>${b.n}</option>`).join("")}</select></dd>
+      <dt>${esAdulto ? "Teléfono" : "Contacto"}</dt><dd>${esAdulto ? "" : esc(f.contacto) + " · "}<span class="num">${telFmt(f.telefono)}</span></dd>
+      ${hermanos.length ? `<dt>Hermanos</dt><dd>${hermanos.map(h => `<button class="link" data-action="alumno" data-id="${h.id}">${esc(h.nombre)}</button>`).join(", ")}</dd>` : ""}
+      <dt>Consentimiento</dt><dd>${a.consentimiento ? "Firmado" : "Falta firmar"}</dd>
+    </dl>
+    <div class="actions"><a class="btn wa" href="https://wa.me/34${f.telefono}" target="_blank" rel="noopener">${I.wa}WhatsApp</a><button class="btn red" data-action="baja" data-id="${a.id}">Dar de baja</button></div>
+    <section class="sec"><h2>Recibos (${recibos.length})</h2><div class="list">${recibos.length ? recibos.map(filaRecibo).join("") : `<div class="empty">Aún no hay recibos.</div>`}</div></section>`);
+}
+function sheetBaja(id){
+  const a = aluById(id);
+  openSheet(`${head("Dar de baja", esc(nombreCompleto(a)))}
+    <p class="note">Deja de contar para los cobros desde el mes que elijas. Su historial y sus recibos se conservan.</p>
+    <div class="field"><label for="baja-mes">Último mes que paga</label><select id="baja-mes">${[-1,0,1].map(n => addMonths(MES_ACTUAL, n)).map(m => `<option value="${m}" ${m === MES_ACTUAL ? "selected" : ""}>${cap(mesLargo(m))}</option>`).join("")}</select></div>
+    <div class="actions"><button class="btn" data-action="alumno" data-id="${a.id}">Cancelar</button><button class="btn red" data-action="baja-ok" data-id="${a.id}">Confirmar baja</button></div>`);
+}
+
+/* ---------- Clase ---------- */
+function sheetClase(id){
+  reIndex();
+  const c = claseById(id);
+  const al = S.alumnos.filter(a => a.activo && a.claseId === id).sort((a,b) => a.nombre.localeCompare(b.nombre));
+  openSheet(`${head(esc(DISC[c.disc].nombre), `${esc(c.grupo)} · ${diasTxt(c.dias)}, ${c.hora} · Tatami ${c.tatami}`)}
+    <div class="legend"><span>${al.length} alumnos</span><span>${al.filter(a => mesesDebidos(a).length).length} con pagos pendientes</span></div>
+    <div class="list">${al.length ? al.map(a => `<button class="row" data-action="alumno" data-id="${a.id}">${avatar(a)}<span class="main"><span class="t">${esc(nombreCompleto(a))}</span><span class="s">${a.cinturon ? "Cinturón " + a.cinturon.toLowerCase() : "Sin grado"}</span></span><span class="end">${pill(estado(a, MES_ACTUAL))}</span></button>`).join("") : `<div class="empty">Nadie apuntado todavía.</div>`}</div>`);
+}
+
+/* ---------- Nuevo alumno ---------- */
+function sheetNuevo(){
+  const fams = [...S.familias].filter(f => hijosDe(f.id).length).sort((a,b) => a.contacto.localeCompare(b.contacto));
+  openSheet(`${head("Nuevo alumno", "Los datos justos para la gestión. Sin datos de salud.")}
+    <form class="form" id="f-nuevo" novalidate>
+      <div class="two"><div class="field"><label for="n-nombre">Nombre</label><input id="n-nombre" required autocomplete="off"></div><div class="field"><label for="n-ap">Apellidos</label><input id="n-ap" required autocomplete="off"></div></div>
+      <div class="two"><div class="field"><label for="n-nac">Año de nacimiento</label><input id="n-nac" inputmode="numeric" maxlength="4" placeholder="2016"></div><div class="field"><label for="n-alta">Fecha de alta</label><input id="n-alta" type="date" value="${HOY}"></div></div>
+      <div class="field"><label for="n-clase">Clase</label><select id="n-clase">${CLASES.map(c => `<option value="${c.id}">${esc(claseTxt(c))} · ${claseHoraTxt(c)}</option>`).join("")}</select></div>
+      <div class="field"><label for="n-cint">Cinturón</label><select id="n-cint"><option value="">Sin grado</option>${CINTURONES.map(b => `<option>${b.n}</option>`).join("")}</select></div>
+      <div class="field"><label for="n-fam">Familia</label><select id="n-fam"><option value="nueva">Nueva familia o alumno adulto</option>${fams.map(f => `<option value="${f.id}">Hermano/a de ${esc(hijosDe(f.id).map(h => h.nombre).join(" y "))} ${esc(hijosDe(f.id)[0].apellidos.split(" ")[0])}</option>`).join("")}</select></div>
+      <div class="two" id="n-famnueva"><div class="field"><label for="n-cont">Padre, madre o el propio alumno</label><input id="n-cont" autocomplete="off"></div><div class="field"><label for="n-tel">WhatsApp</label><input id="n-tel" inputmode="tel" placeholder="600 123 456"></div></div>
+      <label class="check"><input type="checkbox" id="n-rgpd">La familia ha firmado el consentimiento de protección de datos.</label>
+      <p class="note" id="n-err" hidden style="color:#FF6B6E"></p>
+      <button class="btn gold block" type="submit">Dar de alta</button>
+    </form>`);
+  const sel = document.getElementById("n-fam");
+  sel.addEventListener("change", () => { document.getElementById("n-famnueva").hidden = sel.value !== "nueva"; });
+  document.getElementById("f-nuevo").addEventListener("submit", e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim();
+    const err = msg => { const el = document.getElementById("n-err"); el.textContent = msg; el.hidden = false; };
+    if (!v("n-nombre") || !v("n-ap")) return err("Escribe el nombre y los apellidos.");
+    const nac = Number(v("n-nac")); if (!(nac > 1940 && nac <= HOY_D.getFullYear() - 3)) return err("Revisa el año de nacimiento (por ejemplo, 2016).");
+    let fid = sel.value;
+    if (fid === "nueva") {
+      const tel = v("n-tel").replace(/\D/g,"").replace(/^34(?=\d{9}$)/, "");
+      if (!v("n-cont")) return err("Indica a quién escribimos por WhatsApp.");
+      if (!/^[67]\d{8}$/.test(tel)) return err("El WhatsApp debe ser un móvil de 9 cifras que empiece por 6 o 7.");
+      fid = `F${Date.now()}`; S.familias.push({id:fid, contacto:v("n-cont"), telefono:tel});
+    }
+    if (!document.getElementById("n-rgpd").checked) return err("Falta el consentimiento firmado de la familia.");
+    const a = {id:`A${Date.now()}`, nombre:v("n-nombre"), apellidos:v("n-ap"), nacimiento:nac, familiaId:fid, claseId:v("n-clase"), cinturon:v("n-cint"), alta:v("n-alta") || HOY, consentimiento:true, activo:true};
+    S.alumnos.push(a); save(); render(); sheetAlumno(a.id); toast(`${a.nombre} dado de alta`);
+  });
+}
+
+/* ---------- Ajustes ---------- */
+function sheetAjustes(){
+  openSheet(`${head("Ajustes")}
+    <div class="two"><div class="field"><label for="aj-cuota">Mensualidad (€)</label><input id="aj-cuota" inputmode="decimal" value="${S.ajustes.cuota}"></div><div class="field"><label for="aj-dia">Pagar hasta el día</label><input id="aj-dia" inputmode="numeric" value="${S.ajustes.diaLimite}"></div></div>
+    <p class="note">La mensualidad nueva se aplica a los cobros que hagas desde ahora. Los recibos ya emitidos no cambian.</p>
+    <div class="field"><label for="aj-dir">Dirección (sale en los recibos)</label><input id="aj-dir" value="${esc(S.ajustes.direccion)}"></div>
+    <div class="two"><div class="field"><label for="aj-loc">Localidad</label><input id="aj-loc" value="${esc(S.ajustes.localidad)}"></div><div class="field"><label for="aj-tel">Teléfono</label><input id="aj-tel" inputmode="tel" value="${telFmt(S.ajustes.academiaTel)}"></div></div>
+    <button class="btn gold" data-action="aj-guardar">Guardar</button>
+    <section class="sec"><h2>Sobre esta demo</h2>
+      <ul class="note" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px">
+        <li>Todos los alumnos, familias, teléfonos y el horario son inventados. Los datos se guardan solo en este móvil.</li>
+        <li>Mensualidad de 40 € por alumno, dos días a la semana. Los hermanos no tienen descuento.</li>
+        <li>Se añadirá al aceptar el presupuesto: el NIF del titular en el recibo y el número de Bizum en los recordatorios.</li>
+        <li>Se puede añadir: el cobro de la matrícula y de la licencia federativa para campeonatos, con su recibo.</li>
+        <li>Versión real: datos en un servidor de la UE, acceso con contraseña, copias de seguridad y uso desde varios móviles a la vez.</li>
+      </ul>
+    </section>
+    <section class="sec"><h2>Datos de ejemplo</h2><p class="note">Borra lo que hayas probado y vuelve a generar los alumnos y recibos de ejemplo.</p><button class="btn red" data-action="aj-reset">Reiniciar demo</button></section>`);
+}
+
+/* ===================== Eventos ===================== */
+function toast(t){ const el = document.getElementById("toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 2600); }
+
+document.addEventListener("click", e => {
+  const tab = e.target.closest(".tab"); if (tab) return go(tab.dataset.tab);
+  if (e.target === scrim) return closeSheet();
+  const el = e.target.closest("[data-action]"); if (!el) return;
+  const d = el.dataset;
+  switch (d.action) {
+    case "ir-cobros": UI.mesCobros = MES_ACTUAL; UI.filtroCobros = "pendientes"; return go("cobros");
+    case "ir-horario": return go("horario");
+    case "mes": UI.mesCobros = d.m; return render();
+    case "filtro": UI.filtroCobros = d.f; return render();
+    case "disc": UI.disc = d.d; return render();
+    case "dias": UI.dias = d.d; return render();
+    case "cobrar": return sheetCobrar(d.fam);
+    case "recibo": return sheetRecibo(d.no);
+    case "alumno": return sheetAlumno(d.id);
+    case "clase": return sheetClase(d.id);
+    case "nuevo": return sheetNuevo();
+    case "ajustes": return sheetAjustes();
+    case "cerrar": return closeSheet();
+    case "ojo": UI_VER.ver = !UI_VER.ver; return render();
+    case "pdf-wa": enviarPDF(d.no); return;
+    case "pdf-dl": { const r = S.recibos.find(r => r.no === d.no); if (!window.jspdf) { toast("No se ha podido cargar el generador de PDF"); return; } guardarArchivo(pdfRecibo(r), pdfNombre(r)); return; }
+    case "recordar": toast("Recordatorio preparado en WhatsApp"); return;
+    case "metodo": COBRO.metodo = d.m; return drawCobrar();
+    case "confirmar": confirmarCobro(); return;
+    case "baja": return sheetBaja(d.id);
+    case "baja-ok": { const a = aluById(d.id); const m = document.getElementById("baja-mes").value; a.baja = `${addMonths(m,1)}-01`; if (a.baja <= HOY) a.activo = false; save(); closeSheet(); render(); toast(`${a.nombre} dado de baja`); return; }
+    case "aj-guardar": { const c = Number(String(document.getElementById("aj-cuota").value).replace(",", ".")); const dl = Number(document.getElementById("aj-dia").value); if (!(c > 0) || !(dl >= 1 && dl <= 28)) { toast("Revisa los valores: importe mayor que 0 y día entre 1 y 28"); return; } S.ajustes.cuota = c; S.ajustes.diaLimite = dl; S.ajustes.direccion = document.getElementById("aj-dir").value.trim() || S.ajustes.direccion; S.ajustes.localidad = document.getElementById("aj-loc").value.trim() || S.ajustes.localidad; { const t = document.getElementById("aj-tel").value.replace(/\D/g,""); if (/^\d{9}$/.test(t)) S.ajustes.academiaTel = t; } save(); closeSheet(); render(); toast("Ajustes guardados"); return; }
+    case "aj-reset": S = seed(); save(); closeSheet(); render(); toast("Demo reiniciada"); return;
+  }
+});
+document.addEventListener("change", e => {
+  const el = e.target;
+  if (el.dataset.action === "linea") { COBRO.lines[Number(el.dataset.i)].sel = el.checked; drawCobrar(); }
+  if (el.dataset.action === "cinturon") { aluById(el.dataset.id).cinturon = el.value; save(); render(); toast("Cinturón actualizado"); }
+});
+document.addEventListener("input", e => {
+  if (e.target.id === "q") { UI.q = e.target.value; const pos = e.target.selectionStart; render(); const q = document.getElementById("q"); q.focus(); try { q.setSelectionRange(pos,pos); } catch(_){} }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !scrim.hidden) closeSheet(); });
+
+load();
+render();
+})();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
+</body>
+</html>
