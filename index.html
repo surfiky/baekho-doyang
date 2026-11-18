@@ -6,6 +6,7 @@
 <title>Baekho Doyang · App de gestión</title>
 <meta name="description" content="Propuesta de app para Baekho Doyang: cobros sin interrumpir la clase, recibos en PDF por WhatsApp y alumnos, cinturones y horario en el móvil.">
 <meta name="theme-color" content="#0A0A0B">
+<meta name="robots" content="noindex,nofollow">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_ES">
 <meta property="og:title" content="Baekho Doyang · App de gestión">
@@ -71,7 +72,8 @@ p{margin:0}
 .top img{width:44px;height:44px}
 .top b{font-family:var(--display);font-weight:400;font-size:19px;letter-spacing:.05em;color:var(--gold);line-height:1}
 .top small{display:block;font-family:var(--cond);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:3px}
-.top .demo-link{margin-left:auto;white-space:nowrap;font-weight:600;color:var(--gold);text-decoration:none;font-size:15px}
+.top nav{margin-left:auto;display:flex;gap:20px}
+.top nav a{white-space:nowrap;font-weight:600;color:var(--gold);text-decoration:none;font-size:15px}
 
 /* Portada */
 .hero{position:relative;overflow:hidden;padding-block:40px 80px}
@@ -137,6 +139,26 @@ p{margin:0}
 .qr svg{width:172px;height:172px;display:block}
 .qr span{font-family:var(--cond);font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#16130A}
 
+
+/* Propuesta */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}
+.plan{border-radius:22px;border:1px solid var(--line);background:var(--surface);padding:32px 28px;display:flex;flex-direction:column;gap:18px;position:relative}
+.plan.best{border:2px solid var(--gold);background:radial-gradient(90% 70% at 100% 0%,rgba(239,43,47,.14),transparent 60%),radial-gradient(90% 70% at 0% 100%,rgba(47,91,196,.18),transparent 60%),var(--surface)}
+.plan .tag{position:absolute;top:-14px;left:28px;background:var(--gold);color:var(--gold-ink);font-family:var(--cond);font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;padding:4px 12px;border-radius:99px}
+.plan h3{font-family:var(--cond);font-weight:700;font-size:16px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.price b{font-family:var(--display);font-weight:400;font-size:clamp(48px,7vw,64px);line-height:1;font-variant-numeric:tabular-nums}
+.price span{color:var(--muted);font-size:16px}
+.plan .sub{color:#D2CEC2;font-size:16px}
+.plan ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:18px}
+.plan li{display:grid;grid-template-columns:20px 1fr;gap:10px;font-size:16px;color:#E4E0D4}
+.plan li::before{content:"";width:16px;height:16px;margin-top:4px;border-radius:50%;background:rgba(75,194,138,.18) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 8.2l2.3 2.3 4.7-5' fill='none' stroke='%234BC28A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/16px no-repeat}
+.plan li.all{color:var(--gold);font-weight:600}
+.plan li.all::before{background-color:rgba(227,199,62,.18);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 8.2l2.3 2.3 4.7-5' fill='none' stroke='%23E3C73E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.extra-note{margin-top:28px;display:grid;grid-template-columns:auto 1fr;gap:8px 28px;padding:24px 28px;border-radius:18px;border:1px dashed var(--line)}
+.extra-note h3{font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);grid-row:span 2}
+.extra-note ul{margin:0;padding-left:18px;color:#D2CEC2;font-size:15.5px;display:grid;grid-template-columns:1fr 1fr;gap:6px 28px}
+
 /* Aclaraciones y pasos */
 .two{display:grid;grid-template-columns:1fr 1fr;gap:40px}
 .notes{display:flex;flex-direction:column;border-top:1px solid var(--line)}
@@ -163,7 +185,11 @@ footer{padding-block:48px calc(48px + env(safe-area-inset-bottom,0px));border-to
   .band{padding-block:56px}
   .hero-grid,.try,.two{grid-template-columns:1fr}
   .ring{margin-top:24px}
-  .trio,.feats{grid-template-columns:1fr}
+  .trio,.feats,.plans{grid-template-columns:1fr}
+  .plans{gap:32px}
+  .extra-note{grid-template-columns:1fr}
+  .extra-note h3{grid-row:auto}
+  .extra-note ul{grid-template-columns:1fr}
   .step,.step:nth-child(even){grid-template-columns:1fr;gap:28px}
   .step:nth-child(even) .shot{order:0}
   .step .shot{justify-self:center}
@@ -171,7 +197,7 @@ footer{padding-block:48px calc(48px + env(safe-area-inset-bottom,0px));border-to
   .qr,.qr-hint{display:none}
   .notes div{grid-template-columns:1fr;gap:4px}
 }
-@media (max-width:420px){.hero-cta .btn{width:100%}.top small{display:none}.top b{font-size:17px}}
+@media (max-width:420px){.top nav a[href="#propuesta"]{display:none}.hero-cta .btn{width:100%}.top small{display:none}.top b{font-size:17px}}
 </style>
 </head>
 <body>
@@ -179,7 +205,7 @@ footer{padding-block:48px calc(48px + env(safe-area-inset-bottom,0px));border-to
 <header class="wrap top">
   <img src="img/logo-256.webp" alt="Emblema de Baekho Doyang">
   <div><b>BAEKHO DOYANG</b><small>Escuela de artes marciales</small></div>
-  <a class="demo-link" href="app/">Abrir la demo →</a>
+  <nav><a class="demo-link" href="#propuesta">Precio</a><a class="demo-link" href="app/">Abrir la demo →</a></nav>
 </header>
 
 <section class="hero">
@@ -306,6 +332,60 @@ footer{padding-block:48px calc(48px + env(safe-area-inset-bottom,0px));border-to
   </div>
 </section>
 
+<section class="band" id="propuesta">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="eyebrow">Propuesta</p>
+      <h2 class="h2">Un pago único por el desarrollo</h2>
+      <p class="lead">Dos opciones: solo la app, o la app junto con la web de la escuela.</p>
+    </div>
+    <div class="plans">
+      <article class="plan">
+        <h3>App de gestión</h3>
+        <div class="price"><b>800 €</b><span>+ IVA</span></div>
+        <p class="sub">Todo lo que aparece en la demo, funcionando con los datos reales de la escuela.</p>
+        <ul>
+          <li>App instalable en el móvil del profesor (Android e iPhone)</li>
+          <li>Alumnos, familias, cinturones y horario de los dos tatamis</li>
+          <li>Cobros en efectivo o Bizum con recibo numerado en PDF por WhatsApp</li>
+          <li>Matrícula al dar de alta y licencia federativa, cada una con su recibo</li>
+          <li>Recordatorios de pago por WhatsApp e importes ocultos</li>
+          <li>Datos en servidores de la Unión Europea, acceso con contraseña y copias de seguridad</li>
+          <li>Carga inicial de los alumnos y del horario</li>
+          <li>Una sesión para aprender a usarla</li>
+          <li>1 mes de ajustes y corrección de errores sin coste</li>
+        </ul>
+      </article>
+      <article class="plan best">
+        <span class="tag">Recomendada</span>
+        <h3>App + web de la escuela</h3>
+        <div class="price"><b>1.150 €</b><span>+ IVA</span></div>
+        <p class="sub">La web por 350 € más: una página propia para que las familias conozcan la escuela y pidan información.</p>
+        <ul>
+          <li class="all">Todo lo de la app de gestión</li>
+          <li>Web de la escuela adaptada a móvil, con la imagen del tigre</li>
+          <li>Las cinco disciplinas explicadas: Hapkido, Taekwondo, Defensa personal, Wing Fight y Kum Moo Yeh</li>
+          <li>Horarios y tarifas</li>
+          <li>Galería de fotos de clases, exámenes y campeonatos</li>
+          <li>Ubicación, teléfono y botón directo a WhatsApp</li>
+          <li>Solicitud de clase de prueba</li>
+          <li>Preparada para aparecer en Google al buscar artes marciales en Dos Hermanas</li>
+        </ul>
+      </article>
+    </div>
+    <div class="extra-note">
+      <h3>No incluido</h3>
+      <ul>
+        <li>Dominio propio (por ejemplo, baekhodoyang.es): unos 12 € al año.</li>
+        <li>Servidor: con pocos alumnos puede ser gratuito; con copias diarias garantizadas, hasta unos 25 € al mes.</li>
+        <li>Cambios o funciones nuevas pasado el mes de ajustes: a convenir.</li>
+        <li>Envío automático por WhatsApp (API de WhatsApp Business), que tiene coste por mensaje.</li>
+        <li>Fotos y textos de la web: los aporta la escuela; los adaptamos nosotros.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
 <section class="band" id="aclaraciones">
   <div class="wrap two">
     <div>
@@ -318,7 +398,7 @@ footer{padding-block:48px calc(48px + env(safe-area-inset-bottom,0px));border-to
         <div><dt>Mensualidad</dt><dd>40 € por alumno, dos días a la semana (lunes y miércoles o martes y jueves). Los hermanos no tienen descuento.</dd></div>
         <div><dt>Recibo</dt><dd><span class="chip pend">Al aceptar</span>Se añadirá el NIF del titular.</dd></div>
         <div><dt>Bizum</dt><dd><span class="chip pend">Al aceptar</span>Se pondrá el número de Bizum en los recordatorios para que las familias puedan pagar desde casa.</dd></div>
-        <div><dt>Otros cobros</dt><dd><span class="chip opt">Se puede añadir</span>Matrícula y licencia federativa para campeonatos, cada uno con su recibo.</dd></div>
+        <div><dt>Matrícula y licencia</dt><dd>Las pagan las familias cuando corresponde: la matrícula al dar de alta al alumno y la licencia federativa cuando va a competir. Cada una con su recibo. En la demo los importes son de ejemplo.</dd></div>
         <div><dt>WhatsApp</dt><dd>La app prepara el mensaje y el PDF, y el profesor pulsa enviar. El envío totalmente automático (API de WhatsApp Business) es posible, con un pequeño coste por mensaje.</dd></div>
       </dl>
     </div>

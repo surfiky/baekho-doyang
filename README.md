@@ -24,7 +24,7 @@ Prototipo de app para móvil para gestionar los alumnos y los cobros de **Baekho
 - **Se añadirá al aceptar el presupuesto:**
   - El NIF del titular en los recibos.
   - El número de Bizum en los mensajes de recordatorio. Hoy solo tenemos el teléfono de contacto, 635 576 114.
-- **Se puede añadir:** el cobro de la **matrícula** y de la **licencia federativa** para campeonatos, con su propio recibo.
+- **Matrícula y licencia federativa:** las pagan las familias cuando corresponde, cada una con su recibo. La matrícula se cobra al dar de alta al alumno y la licencia, desde su ficha, cuando va a competir. En la demo los importes son de ejemplo (se cambian en Ajustes).
 - **El horario es de ejemplo.** Se sustituye por el real cuando la escuela lo apruebe.
 - **Versión real:**
   - Datos en un servidor de la Unión Europea, acceso con contraseña y copias de seguridad diarias.

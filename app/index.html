@@ -341,8 +341,8 @@ const claseHoraTxt = c => `${c.dias === "LX" ? "L y X" : "M y J"} ${c.hora} · T
 const CAPACIDAD = 16;
 
 /* ===================== Datos ===================== */
-const AJUSTES_BASE = {cuota:40, diaLimite:5, academiaTel:"635576114", direccion:"Avenida de Adolfo Suárez, 50", localidad:"Dos Hermanas (Sevilla)"};
-const KEY = "bk-gestion-demo-v2";
+const AJUSTES_BASE = {cuota:40, matricula:30, licencia:45, diaLimite:5, academiaTel:"635576114", direccion:"Avenida de Adolfo Suárez, 50", localidad:"Dos Hermanas (Sevilla)"};
+const KEY = "bk-gestion-demo-v3";
 let S;
 
 function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -404,6 +404,7 @@ function seed(){
       pendientes.push({fecha:`${m}-${pad(Math.min(d,28))}`, familiaId:f.id, metodo: r() < .62 ? "efectivo" : "bizum", lineas: hijos.map(a => ({alumnoId:a.id, mes:m, importe:40}))});
     }
   }
+  for (const a of alumnos) a.matricula = !(a.alta >= `${CURSO_INICIO}-01` && r() < .6);
   pendientes.sort((a,b) => a.fecha.localeCompare(b.fecha));
   for (const p of pendientes) { if (p.fecha > HOY) p.fecha = HOY; st.recibos.push({no: nextNo(st, p.fecha), ...p}); }
   return st;
@@ -417,7 +418,16 @@ const famById = id => S.familias.find(f => f.id === id);
 const aluById = id => S.alumnos.find(a => a.id === id);
 const hijosDe = fid => S.alumnos.filter(a => a.familiaId === fid && a.activo);
 const nombreCompleto = a => `${a.nombre} ${a.apellidos}`;
-function pagosIndex(){ const ix = new Map(); for (const r of S.recibos) for (const l of r.lineas) ix.set(`${l.alumnoId}|${l.mes}`, r); return ix; }
+const CONCEPTOS = {matricula:"Matrícula", licencia:"Licencia federativa"};
+const TEMPORADA = `${CURSO_INICIO.slice(0,4)}-${String(Number(CURSO_INICIO.slice(0,4)) + 1).slice(2)}`;
+const esMens = l => !l.concepto || l.concepto === "mensualidad";
+const importeDe = l => l.concepto === "matricula" ? S.ajustes.matricula : l.concepto === "licencia" ? S.ajustes.licencia : S.ajustes.cuota;
+const etiqueta = l => esMens(l) ? cap(mesLargo(l.mes)) : l.concepto === "licencia" ? `Licencia federativa ${l.temporada || TEMPORADA}` : CONCEPTOS[l.concepto];
+const etiquetaPDF = l => esMens(l) ? `Mensualidad ${mesLargo(l.mes)}` : etiqueta(l);
+const etiquetaCorta = l => esMens(l) ? mesCorto(l.mes) : l.concepto === "licencia" ? "licencia" : "matrícula";
+const matriculaPagada = a => a.matricula !== false || S.recibos.some(r => r.lineas.some(l => l.alumnoId === a.id && l.concepto === "matricula"));
+const licenciaPagada = a => S.recibos.some(r => r.lineas.some(l => l.alumnoId === a.id && l.concepto === "licencia" && (l.temporada || TEMPORADA) === TEMPORADA));
+function pagosIndex(){ const ix = new Map(); for (const r of S.recibos) for (const l of r.lineas) if (esMens(l)) ix.set(`${l.alumnoId}|${l.mes}`, r); return ix; }
 let IX = new Map();
 const reIndex = () => { IX = pagosIndex(); };
 const debeMes = (a, m) => a.activo && ymOf(a.alta) <= m && m >= CURSO_INICIO && (!a.baja || ymOf(a.baja) > m);
@@ -425,7 +435,7 @@ function estado(a, m){
   if (!debeMes(a, m)) return null;
   const r = IX.get(`${a.id}|${m}`);
   if (r) return {k:"ok", recibo:r};
-  if (m < MES_ACTUAL || (m === MES_ACTUAL && HOY_D.getDate() > S.ajustes.diaLimite)) return {k:"late"};
+  if (m < MES_ACTUAL || (m === MES_ACTUAL && HOY_D.getDate() > S.ajustes.diaLimite && ymOf(a.alta) !== m)) return {k:"late"};
   return {k:"pend"};
 }
 function mesesDebidos(a){ const out = []; for (let m = CURSO_INICIO; m <= MES_ACTUAL; m = addMonths(m,1)) { const e = estado(a, m); if (e && e.k !== "ok") out.push(m); } return out; }
@@ -437,8 +447,9 @@ function pill(e){
 }
 function resumenMes(m){
   let alumnos = 0, pagados = 0, ef = 0, bz = 0, late = 0, pend = 0;
-  for (const a of S.alumnos) { const e = estado(a, m); if (!e) continue; alumnos++; if (e.k === "ok") { pagados++; const l = e.recibo.lineas.find(l => l.alumnoId === a.id && l.mes === m); (e.recibo.metodo === "bizum" ? (bz += l.importe) : (ef += l.importe)); } else if (e.k === "late") late++; else pend++; }
-  return {alumnos, pagados, ef, bz, late, pend, previsto: alumnos * S.ajustes.cuota};
+  for (const a of S.alumnos) { const e = estado(a, m); if (!e) continue; alumnos++; if (e.k === "ok") { pagados++; const l = e.recibo.lineas.find(l => esMens(l) && l.alumnoId === a.id && l.mes === m); (e.recibo.metodo === "bizum" ? (bz += l.importe) : (ef += l.importe)); } else if (e.k === "late") late++; else pend++; }
+  let extra = 0; for (const r of S.recibos) if (ymOf(r.fecha) === m) for (const l of r.lineas) if (!esMens(l)) extra += l.importe;
+  return {alumnos, pagados, ef, bz, late, pend, extra, previsto: alumnos * S.ajustes.cuota};
 }
 function familiasConDeuda(){
   const out = [];
@@ -451,7 +462,7 @@ const saludo = f => f.contacto.split(" ")[0];
 function msgRecibo(r){
   const f = famById(r.familiaId);
   const total = r.lineas.reduce((s,l) => s + l.importe, 0);
-  const lineas = r.lineas.map(l => { const a = aluById(l.alumnoId); return `• ${a.nombre} ${a.apellidos.split(" ")[0]}: ${cap(mesLargo(l.mes))} (${eur(l.importe)})`; }).join("\n");
+  const lineas = r.lineas.map(l => { const a = aluById(l.alumnoId); return `• ${a.nombre} ${a.apellidos.split(" ")[0]}: ${etiqueta(l)} (${eur(l.importe)})`; }).join("\n");
   return `Hola ${saludo(f)}, te enviamos el recibo de Baekho Doyang 🐯\n\n*Recibo nº ${r.no}*\nFecha: ${fechaCorta(r.fecha)}\n${lineas}\n*Total: ${eur(total)}*\nPagado en ${r.metodo === "bizum" ? "Bizum" : "efectivo"}\n\nGracias. Guarda este mensaje como justificante.`;
 }
 function msgRecordatorio(f, lines){
@@ -502,7 +513,7 @@ function vInicio(){
     <div class="eyebrow">Mensualidad de ${mesNombre(MES_ACTUAL)} · ${plazo}</div>
     <div class="big num">${M(cobrado)}<small>de ${M(R.previsto)}</small></div>
     <div class="bar" role="img" aria-label="Progreso de cobro del mes"><i class="b-ef" style="width:${R.previsto ? R.ef/R.previsto*100 : 0}%"></i><i class="b-bz" style="width:${R.previsto ? R.bz/R.previsto*100 : 0}%"></i></div>
-    <div class="legend"><span><i style="background:var(--gold)"></i>Efectivo ${M(R.ef)}</span><span><i style="background:var(--blue-soft)"></i>Bizum ${M(R.bz)}</span></div>
+    <div class="legend"><span><i style="background:var(--gold)"></i>Efectivo ${M(R.ef)}</span><span><i style="background:var(--blue-soft)"></i>Bizum ${M(R.bz)}</span>${R.extra ? `<span>Matrículas y licencias ${M(R.extra)}</span>` : ""}</div>
     <div class="stats">
       <div class="stat okk"><b>${R.pagados}</b><span>Pagados</span></div>
       <div class="stat ${R.late ? "warn" : ""}"><b>${R.late}</b><span>Atrasados</span></div>
@@ -541,7 +552,7 @@ function filaRecibo(r){
   const nombres = [...new Set(r.lineas.map(l => aluById(l.alumnoId).nombre))].join(" y ");
   const total = r.lineas.reduce((s,l) => s + l.importe, 0);
   return `<button class="row" data-action="recibo" data-no="${r.no}">
-    <span class="main"><span class="t">${esc(nombres)} ${esc(aluById(r.lineas[0].alumnoId).apellidos.split(" ")[0])}</span><span class="s num">Nº ${r.no} · ${fechaCorta(r.fecha)} · ${[...new Set(r.lineas.map(l => mesCorto(l.m ?? l.mes)))].join(", ")}</span></span>
+    <span class="main"><span class="t">${esc(nombres)} ${esc(aluById(r.lineas[0].alumnoId).apellidos.split(" ")[0])}</span><span class="s num">Nº ${r.no} · ${fechaCorta(r.fecha)} · ${[...new Set(r.lineas.map(l => etiquetaCorta(l)))].join(", ")}</span></span>
     <span class="end"><span class="tag ${r.metodo === "bizum" ? "bz" : "ef"}">${r.metodo === "bizum" ? "Bizum" : "Efectivo"}</span><b class="num">${M(total)}</b></span>
   </button>`;
 }
@@ -563,7 +574,7 @@ function vCobros(){
     <div class="eyebrow">${cap(mesLargo(m))}</div>
     <div class="big num" style="font-size:36px">${M(R.ef + R.bz)}<small>de ${M(R.previsto)}</small></div>
     <div class="bar"><i class="b-ef" style="width:${R.previsto ? R.ef/R.previsto*100 : 0}%"></i><i class="b-bz" style="width:${R.previsto ? R.bz/R.previsto*100 : 0}%"></i></div>
-    <div class="legend"><span><i style="background:var(--gold)"></i>Efectivo ${M(R.ef)}</span><span><i style="background:var(--blue-soft)"></i>Bizum ${M(R.bz)}</span><span>${recibosMes} recibos</span></div>
+    <div class="legend"><span><i style="background:var(--gold)"></i>Efectivo ${M(R.ef)}</span><span><i style="background:var(--blue-soft)"></i>Bizum ${M(R.bz)}</span>${R.extra ? `<span>Matrículas y licencias ${M(R.extra)}</span>` : ""}<span>${recibosMes} recibos</span></div>
   </section>
   <div class="seg" role="group" aria-label="Filtro">
     <button aria-pressed="${UI.filtroCobros === "pendientes"}" data-action="filtro" data-f="pendientes">Sin pagar · ${pend.length}</button>
@@ -639,12 +650,14 @@ const head = (t, s) => `<div class="sheet-h"><div class="main"><h3>${t}</h3>${s 
 
 /* ---------- Cobrar ---------- */
 let COBRO = null;
-function sheetCobrar(fid){
+function sheetCobrar(fid, extras){
   reIndex();
   const f = famById(fid);
   const hijos = hijosDe(fid);
   const lines = [];
+  for (const x of (extras || [])) lines.push({a:aluById(x.id), concepto:x.concepto, sel:true});
   for (const a of hijos) {
+    if (!matriculaPagada(a) && !lines.some(l => l.a.id === a.id && l.concepto === "matricula")) lines.push({a, concepto:"matricula", sel:true});
     for (const m of mesesDebidos(a)) lines.push({a, m, sel:true, late: estado(a,m).k === "late"});
     const sig = addMonths(MES_ACTUAL, 1);
     if (!IX.get(`${a.id}|${sig}`) && ymOf(a.alta) <= sig) lines.push({a, m:sig, sel:false, adelanto:true});
@@ -654,7 +667,7 @@ function sheetCobrar(fid){
 }
 function previewRecibo(){
   const sel = COBRO.lines.filter(l => l.sel);
-  return {no: `${HOY.slice(0,4)}-${String((S.contador[HOY.slice(0,4)] || 0) + 1).padStart(4,"0")}`, fecha: HOY, familiaId: COBRO.f.id, metodo: COBRO.metodo, lineas: sel.map(l => ({alumnoId:l.a.id, mes:l.m, importe:S.ajustes.cuota}))};
+  return {no: `${HOY.slice(0,4)}-${String((S.contador[HOY.slice(0,4)] || 0) + 1).padStart(4,"0")}`, fecha: HOY, familiaId: COBRO.f.id, metodo: COBRO.metodo, lineas: sel.map(l => ({alumnoId:l.a.id, mes:l.m || MES_ACTUAL, importe:importeDe(l), ...(l.concepto ? {concepto:l.concepto} : {}), ...(l.concepto === "licencia" ? {temporada:TEMPORADA} : {})}))};
 }
 function drawCobrar(){
   const {f, lines, metodo} = COBRO;
@@ -663,7 +676,7 @@ function drawCobrar(){
   const hijos = hijosDe(f.id);
   openSheet(`
     ${head("Cobrar", `${esc(hijos.map(h => h.nombre).join(" y "))} ${esc(hijos[0].apellidos.split(" ")[0])} · Contacto: ${esc(f.contacto)}`)}
-    <div class="lines">${lines.map((l,i) => `<label class="line"><input type="checkbox" id="ln-${i}" data-action="linea" data-i="${i}" ${l.sel ? "checked" : ""}><span class="main"><b>${cap(mesLargo(l.m))}</b><span>${esc(l.a.nombre)} · ${l.adelanto ? "Adelantar el mes siguiente" : l.late ? "Atrasado" : "En plazo"}</span></span><span class="amt">${eur(S.ajustes.cuota)}</span></label>`).join("")}</div>
+    <div class="lines">${lines.map((l,i) => `<label class="line"><input type="checkbox" id="ln-${i}" data-action="linea" data-i="${i}" ${l.sel ? "checked" : ""}><span class="main"><b>${l.concepto ? etiqueta(l) : cap(mesLargo(l.m))}</b><span>${esc(l.a.nombre)} · ${l.concepto === "matricula" ? "Una sola vez, al darse de alta" : l.concepto === "licencia" ? "Para competir en campeonatos" : l.adelanto ? "Adelantar el mes siguiente" : l.late ? "Atrasado" : "En plazo"}</span></span><span class="amt">${eur(importeDe(l))}</span></label>`).join("")}</div>
     <div class="methods" role="group" aria-label="Método de pago">
       <button class="method" aria-pressed="${metodo === "efectivo"}" data-action="metodo" data-m="efectivo"><b>Efectivo</b><span>En mano, en la escuela</span></button>
       <button class="method" aria-pressed="${metodo === "bizum"}" data-action="metodo" data-m="bizum"><b>Bizum</b><span>Comprobado en el banco</span></button>
@@ -689,7 +702,7 @@ function reciboHTML(r){
   return `<div class="receipt">
     <div class="r-head"><img src="${window.BK_LOGO}" alt=""><div><b>BAEKHO DOYANG</b><span>Escuela de artes marciales</span><div class="r-addr">${esc(S.ajustes.direccion)} · ${esc(S.ajustes.localidad)}<br>Tel. ${telFmt(S.ajustes.academiaTel)}</div></div><div class="r-no">Recibo<strong class="num">${r.no}</strong></div></div>
     <div style="font-size:14px;color:#5E584A">Fecha ${fechaCorta(r.fecha)} · ${esc(f.contacto)}</div>
-    <div class="r-lines">${r.lineas.map(l => { const a = aluById(l.alumnoId); return `<div><span>${esc(nombreCompleto(a))} · ${cap(mesLargo(l.mes))}</span><span>${eur(l.importe)}</span></div>`; }).join("")}</div>
+    <div class="r-lines">${r.lineas.map(l => { const a = aluById(l.alumnoId); return `<div><span>${esc(nombreCompleto(a))} · ${etiqueta(l)}</span><span>${eur(l.importe)}</span></div>`; }).join("")}</div>
     <div class="r-foot"><span>Pagado en ${r.metodo === "bizum" ? "Bizum" : "efectivo"}</span><b>${eur(total)}</b></div>
   </div>`;
 }
@@ -739,7 +752,7 @@ function pdfRecibo(r){
   for (const l of r.lineas) {
     y += 10; const a = aluById(l.alumnoId);
     doc.text(doc.splitTextToSize(nombreCompleto(a), 48), 13, y);
-    doc.text(`Mensualidad ${mesLargo(l.mes)}`, 64, y);
+    doc.text(etiquetaPDF(l), 64, y);
     doc.text(euro(l.importe), W-13, y, {align:"right"});
     doc.setDrawColor(221,215,200); doc.setLineWidth(.2); doc.line(10, y+4, W-10, y+4);
   }
@@ -789,7 +802,9 @@ function sheetAlumno(id){
   const esAdulto = f.contacto.startsWith(a.nombre);
   openSheet(`${head(esc(nombreCompleto(a)), `${edad} años · alta ${fechaCorta(a.alta)}`)}
     <div class="months" aria-label="Pagos del curso">${meses.map(m => { const e = estado(a,m); const st = e ? (e.k === "ok" ? ["p-ok","Pagado"] : e.k === "late" ? ["p-late","Debe"] : ["p-pend","Plazo"]) : ["p-none", m > MES_ACTUAL ? "Próximo" : "—"]; return `<div class="mbox ${st[0]}">${mesCorto(m)}<small>${st[1]}</small></div>`; }).join("")}</div>
-    ${deb.length ? `<button class="btn gold block" data-action="cobrar" data-fam="${f.id}">Cobrar ${M(deb.length * S.ajustes.cuota)}</button>` : ""}
+    <div class="legend"><span>${matriculaPagada(a) ? `<span class="pill p-ok">Matrícula pagada</span>` : `<span class="pill p-pend">Matrícula pendiente</span>`}</span><span>${licenciaPagada(a) ? `<span class="pill p-ok">Licencia ${TEMPORADA}</span>` : `<span class="pill p-none">Sin licencia ${TEMPORADA}</span>`}</span></div>
+    ${deb.length || !matriculaPagada(a) ? `<button class="btn gold block" data-action="cobrar" data-fam="${f.id}">Cobrar ${!matriculaPagada(a) ? (deb.length ? "matrícula y mensualidad" : "matrícula") : "mensualidad"}</button>` : ""}
+    ${licenciaPagada(a) ? "" : `<button class="btn block" style="min-height:46px;font-size:15px" data-action="cobrar-extra" data-id="${a.id}" data-c="licencia">Cobrar licencia federativa · ${eur(S.ajustes.licencia)}</button>`}
     <dl class="kv">
       <dt>Clase</dt><dd>${esc(claseTxt(c))}</dd>
       <dt>Horario</dt><dd>${diasTxt(c.dias)}, ${c.hora} · Tatami ${c.tatami}</dd>
@@ -851,7 +866,8 @@ function sheetNuevo(){
     }
     if (!document.getElementById("n-rgpd").checked) return err("Falta el consentimiento firmado de la familia.");
     const a = {id:`A${Date.now()}`, nombre:v("n-nombre"), apellidos:v("n-ap"), nacimiento:nac, familiaId:fid, claseId:v("n-clase"), cinturon:v("n-cint"), alta:v("n-alta") || HOY, consentimiento:true, activo:true};
-    S.alumnos.push(a); save(); render(); sheetAlumno(a.id); toast(`${a.nombre} dado de alta`);
+    a.matricula = false;
+    S.alumnos.push(a); save(); render(); sheetCobrar(fid); toast(`${a.nombre} dado de alta. Cobra ahora la matrícula`);
   });
 }
 
@@ -859,7 +875,8 @@ function sheetNuevo(){
 function sheetAjustes(){
   openSheet(`${head("Ajustes")}
     <div class="two"><div class="field"><label for="aj-cuota">Mensualidad (€)</label><input id="aj-cuota" inputmode="decimal" value="${S.ajustes.cuota}"></div><div class="field"><label for="aj-dia">Pagar hasta el día</label><input id="aj-dia" inputmode="numeric" value="${S.ajustes.diaLimite}"></div></div>
-    <p class="note">La mensualidad nueva se aplica a los cobros que hagas desde ahora. Los recibos ya emitidos no cambian.</p>
+    <div class="two"><div class="field"><label for="aj-mat">Matrícula (€)</label><input id="aj-mat" inputmode="decimal" value="${S.ajustes.matricula}"></div><div class="field"><label for="aj-lic">Licencia federativa (€)</label><input id="aj-lic" inputmode="decimal" value="${S.ajustes.licencia}"></div></div>
+    <p class="note">Los importes nuevos se aplican a los cobros que hagas desde ahora. Los recibos ya emitidos no cambian. Matrícula y licencia tienen importes de ejemplo.</p>
     <div class="field"><label for="aj-dir">Dirección (sale en los recibos)</label><input id="aj-dir" value="${esc(S.ajustes.direccion)}"></div>
     <div class="two"><div class="field"><label for="aj-loc">Localidad</label><input id="aj-loc" value="${esc(S.ajustes.localidad)}"></div><div class="field"><label for="aj-tel">Teléfono</label><input id="aj-tel" inputmode="tel" value="${telFmt(S.ajustes.academiaTel)}"></div></div>
     <button class="btn gold" data-action="aj-guardar">Guardar</button>
@@ -868,7 +885,7 @@ function sheetAjustes(){
         <li>Todos los alumnos, familias, teléfonos y el horario son inventados. Los datos se guardan solo en este móvil.</li>
         <li>Mensualidad de 40 € por alumno, dos días a la semana. Los hermanos no tienen descuento.</li>
         <li>Se añadirá al aceptar el presupuesto: el NIF del titular en el recibo y el número de Bizum en los recordatorios.</li>
-        <li>Se puede añadir: el cobro de la matrícula y de la licencia federativa para campeonatos, con su recibo.</li>
+        <li>Matrícula y licencia federativa: se cobran con su propio recibo. La matrícula, al dar de alta al alumno; la licencia, desde su ficha cuando vaya a competir. Los importes son de ejemplo.</li>
         <li>Versión real: datos en un servidor de la UE, acceso con contraseña, copias de seguridad y uso desde varios móviles a la vez.</li>
       </ul>
     </section>
@@ -891,6 +908,7 @@ document.addEventListener("click", e => {
     case "disc": UI.disc = d.d; return render();
     case "dias": UI.dias = d.d; return render();
     case "cobrar": return sheetCobrar(d.fam);
+    case "cobrar-extra": { const a = aluById(d.id); return sheetCobrar(a.familiaId, [{id:a.id, concepto:d.c}]); }
     case "recibo": return sheetRecibo(d.no);
     case "alumno": return sheetAlumno(d.id);
     case "clase": return sheetClase(d.id);
@@ -905,7 +923,7 @@ document.addEventListener("click", e => {
     case "confirmar": confirmarCobro(); return;
     case "baja": return sheetBaja(d.id);
     case "baja-ok": { const a = aluById(d.id); const m = document.getElementById("baja-mes").value; a.baja = `${addMonths(m,1)}-01`; if (a.baja <= HOY) a.activo = false; save(); closeSheet(); render(); toast(`${a.nombre} dado de baja`); return; }
-    case "aj-guardar": { const c = Number(String(document.getElementById("aj-cuota").value).replace(",", ".")); const dl = Number(document.getElementById("aj-dia").value); if (!(c > 0) || !(dl >= 1 && dl <= 28)) { toast("Revisa los valores: importe mayor que 0 y día entre 1 y 28"); return; } S.ajustes.cuota = c; S.ajustes.diaLimite = dl; S.ajustes.direccion = document.getElementById("aj-dir").value.trim() || S.ajustes.direccion; S.ajustes.localidad = document.getElementById("aj-loc").value.trim() || S.ajustes.localidad; { const t = document.getElementById("aj-tel").value.replace(/\D/g,""); if (/^\d{9}$/.test(t)) S.ajustes.academiaTel = t; } save(); closeSheet(); render(); toast("Ajustes guardados"); return; }
+    case "aj-guardar": { const c = Number(String(document.getElementById("aj-cuota").value).replace(",", ".")); const dl = Number(document.getElementById("aj-dia").value); if (!(c > 0) || !(dl >= 1 && dl <= 28)) { toast("Revisa los valores: importe mayor que 0 y día entre 1 y 28"); return; } S.ajustes.cuota = c; S.ajustes.diaLimite = dl; { const n = id => Number(String(document.getElementById(id).value).replace(",", ".")); if (n("aj-mat") > 0) S.ajustes.matricula = n("aj-mat"); if (n("aj-lic") > 0) S.ajustes.licencia = n("aj-lic"); } S.ajustes.direccion = document.getElementById("aj-dir").value.trim() || S.ajustes.direccion; S.ajustes.localidad = document.getElementById("aj-loc").value.trim() || S.ajustes.localidad; { const t = document.getElementById("aj-tel").value.replace(/\D/g,""); if (/^\d{9}$/.test(t)) S.ajustes.academiaTel = t; } save(); closeSheet(); render(); toast("Ajustes guardados"); return; }
     case "aj-reset": S = seed(); save(); closeSheet(); render(); toast("Demo reiniciada"); return;
   }
 });
